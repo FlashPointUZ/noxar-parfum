@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NOXAR PARFUM admin paneli">
+  <title>NOXAR PARFUM ADMIN</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-shell">
+    <div class="sidebar-backdrop" data-close-sidebar></div>
+    <aside class="sidebar" aria-label="Admin navigatsiyasi">
+      <div class="sidebar-brand"><span>N</span><div>NOXAR PARFUM<small>ADMIN PANEL</small></div></div>
+      <nav class="sidebar-nav">
+        <p class="nav-label">Boshqaruv</p>
+        <a class="nav-link active" href="#dashboard" data-view="dashboard"><span>⌂</span> Dashboard</a>
+        <a class="nav-link" href="#products" data-view="products"><span>◇</span> Mahsulotlar</a>
+        <a class="nav-link" href="#orders" data-view="orders"><span>▤</span> Buyurtmalar</a>
+        <a class="nav-link" href="#customers" data-view="customers"><span>♙</span> Mijozlar</a>
+        <a class="nav-link" href="#inventory" data-view="inventory"><span>▥</span> Ombor</a>
+        <a class="nav-link" href="#payments" data-view="payments"><span>◇</span> To‘lovlar</a>
+        <a class="nav-link" href="#promos" data-view="promos"><span>%</span> Promo-kodlar</a>
+        <a class="nav-link" href="#reviews" data-view="reviews"><span>★</span> Sharhlar</a>
+        <p class="nav-label">Marketing</p>
+        <a class="nav-link" href="#campaigns" data-view="campaigns"><span>✦</span> Bannerlar va aksiyalar</a>
+        <a class="nav-link" href="#reports" data-view="reports"><span>◫</span> Hisobotlar</a>
+        <a class="nav-link" href="#profile" data-view="profile"><span>◎</span> Profil sozlamalari</a>
+      </nav>
+      <button class="logout-link" type="button"><span>↪</span> Chiqish</button>
+    </aside>
+
+    <main class="main-content" id="admin-main">
+      <header class="topbar">
+        <div class="topbar-title"><p class="eyebrow">Boshqaruv markazi</p><h1>Dashboard</h1></div>
+        <div class="topbar-actions">
+          <button class="menu-toggle" type="button" aria-label="Bo‘limlar menyusini ochish" aria-expanded="false"><i></i><i></i><i></i></button>
+          <div class="quick-nav" hidden>
+            <a href="#dashboard" data-view="dashboard">Dashboard</a>
+            <a href="#products" data-view="products">Mahsulotlar</a>
+            <a href="#orders" data-view="orders">Buyurtmalar</a>
+            <a href="#customers" data-view="customers">Mijozlar</a>
+            <a href="#inventory" data-view="inventory">Ombor</a>
+            <a href="#payments" data-view="payments">To‘lovlar</a>
+            <a href="#promos" data-view="promos">Promo-kodlar</a>
+            <a href="#reviews" data-view="reviews">Sharhlar</a>
+            <a href="#campaigns" data-view="campaigns">Bannerlar va aksiyalar</a>
+            <a href="#reports" data-view="reports">Hisobotlar</a>
+            <a href="#profile" data-view="profile">Profil sozlamalari</a>
+          </div>
+          <button class="notification-button" type="button" aria-label="Bildirishnomalar">♢<b>3</b></button>
+          <div class="admin-profile"><span class="profile-avatar">NA</span><div><strong>Admin</strong><small>NOXAR PARFUM</small></div><span class="profile-chevron">⌄</span></div>
+        </div>
+        <aside class="notification-panel" hidden aria-label="Bildirishnomalar markazi">
+          <div class="notification-panel-heading"><div><p class="eyebrow">Activity center</p><h2>Bildirishnomalar</h2></div><button type="button" class="notification-close" data-close-notifications aria-label="Yopish">×</button></div>
+          <div class="notification-toolbar"><div class="notification-tabs"><button type="button" class="active" data-notification-filter="all">Barchasi</button><button type="button" data-notification-filter="unread">O‘qilmagan</button></div><button type="button" class="notification-mark-all" data-mark-notifications>Hammasini o‘qish</button></div>
+          <div class="notification-list" data-notification-list></div>
+          <div class="notification-panel-footer"><button type="button" data-clear-notifications>Bildirishnomalarni tozalash</button></div>
+        </aside>
+      </header>
+
+      <section class="welcome-row">
+        <div><p class="eyebrow" data-admin-current-date></p><h2>Xush kelibsiz, Admin <i>✦</i></h2><p>Bugungi do‘kon ko‘rsatkichlari va so‘nggi faoliyat.</p></div>
+        <div class="date-filter-wrap"><button class="date-filter" type="button" aria-expanded="false" aria-haspopup="true">Bugun <span>⌄</span></button><div class="date-filter-menu" hidden><button type="button" data-date-range="today">Bugun</button><button type="button" data-date-range="yesterday">Kecha</button><button type="button" data-date-range="7">So‘nggi 7 kun</button><button type="button" data-date-range="30">So‘nggi 30 kun</button><div class="custom-date-range"><label>Boshlanish<input type="date" data-date-start></label><label>Tugash<input type="date" data-date-end></label><button type="button" data-date-range="custom">Qo‘llash</button></div></div></div>
+      </section>
+
+      <section class="stats-grid" aria-label="Asosiy statistika">
+        <article class="stat-card"><div class="stat-icon gold">▤</div><div><span>Bugungi buyurtmalar</span><strong data-stat="orders">24</strong><small class="positive">↑ 12.5% <em>kechagiga nisbatan</em></small></div></article>
+        <article class="stat-card"><div class="stat-icon green">₽</div><div><span>Bugungi tushum</span><strong data-stat="revenue">8 450 000 so‘m</strong><small class="positive">↑ 8.2% <em>kechagiga nisbatan</em></small></div></article>
+        <article class="stat-card"><div class="stat-icon orange">!</div><div><span>Kam qolgan mahsulotlar</span><strong data-stat="low-stock">6</strong><small class="warning">E’tibor talab qiladi</small></div></article>
+        <article class="stat-card"><div class="stat-icon red">₽</div><div><span>To‘lanmagan buyurtmalar</span><strong data-stat="unpaid">4</strong><small class="muted">Tekshirish kerak</small></div></article>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel orders-panel" id="orders">
+          <div class="panel-heading"><div><p class="eyebrow">Faoliyat</p><h2>So‘nggi buyurtmalar</h2></div><button class="panel-link" type="button">Barchasini ko‘rish <span>↗</span></button></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Buyurtma raqami</th><th>Mijoz ismi</th><th>Summa</th><th>To‘lov usuli</th><th>To‘lov holati</th><th>Buyurtma holati</th></tr></thead>
+              <tbody id="recent-orders"></tbody>
+            </table>
+          </div>
+        </article>
+        <article class="panel stock-panel" id="inventory">
+          <div class="panel-heading"><div><p class="eyebrow">Ombor nazorati</p><h2>Kam qolgan mahsulotlar</h2></div><button class="panel-more" type="button" aria-label="Ko‘proq">•••</button></div>
+          <div class="low-stock-list" id="low-stock-list"></div>
+          <button class="outline-button" type="button" data-dashboard-inventory>Omborni ko‘rish <span>↗</span></button>
+        </article>
+      </section>
+
+      <section class="products-section panel" id="products">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Katalog boshqaruvi</p><h2>Mahsulotlar</h2></div>
+          <button class="button-gold add-product-button" type="button">+ Mahsulot qo‘shish</button>
+        </div>
+        <div class="products-toolbar">
+          <label class="admin-search">Qidirish<input type="search" id="product-search" placeholder="Mahsulot yoki brend..."></label>
+          <label class="admin-select">Bo‘lim<select id="product-category-filter"><option value="all">UMUMIY</option><option value="atirlar">Atirlar</option><option value="body-fragrance">Tana uchun hushbo‘y mahsulotlar</option><option value="deodorants">Dezodorantlar</option><option value="perfume-oils">Parfyumeriya moylari</option><option value="home-fragrance">Uy uchun hushbo‘y mahsulotlar</option><option value="bath-shower">Dush va vanna mahsulotlari</option><option value="accessories">Parfyumeriya aksessuarlari</option></select></label>
+          <label class="admin-select">Jins<select id="product-gender-filter"><option value="all">Barchasi</option><option value="ayollar">Ayollar</option><option value="erkaklar">Erkaklar</option><option value="unisex">Uniseks</option></select></label>
+          <label class="admin-select">Holat<select id="product-stock-filter"><option value="all">Barchasi</option><option value="available">Mavjud</option><option value="low">Kam qolgan</option><option value="soldout">Sotilgan</option></select></label>
+        </div>
+        <div class="table-wrap">
+          <table class="products-table">
+            <thead><tr><th>Mahsulot</th><th>Brend</th><th>Bo‘lim</th><th>Jins</th><th>Narx</th><th>Stok</th><th>Holat</th><th>Amallar</th></tr></thead>
+            <tbody id="products-table-body"></tbody>
+          </table>
+        </div>
+        <div class="products-pagination" aria-label="Mahsulotlar sahifalari"></div>
+      </section>
+
+      <section class="orders-section panel" id="orders-management" hidden>
+        <div class="panel-heading">
+          <div><p class="eyebrow">Savdo boshqaruvi</p><h2>Buyurtmalar</h2></div>
+          <button class="button-gold" type="button" data-refresh-orders>Yangilash</button>
+        </div>
+        <div class="products-toolbar orders-toolbar">
+          <label class="admin-search">Qidirish<input type="search" id="order-search" placeholder="Raqam yoki mijoz..."></label>
+          <label class="admin-select">To‘lov holati<select id="order-payment-filter"><option value="all">Barchasi</option><option value="paid">To‘langan</option><option value="pending">Kutilmoqda</option></select></label>
+          <label class="admin-select">Buyurtma holati<select id="order-status-filter"><option value="all">Barchasi</option><option value="processing">Jarayonda</option><option value="delivered">Yetkazilgan</option><option value="cancelled">Bekor qilingan</option></select></label>
+        </div>
+        <div class="table-wrap">
+          <table class="orders-management-table">
+            <thead><tr><th>Buyurtma</th><th>Mijoz</th><th>Summa</th><th>To‘lov</th><th>To‘lov holati</th><th>Buyurtma holati</th><th>Amallar</th></tr></thead>
+            <tbody id="orders-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="customers-section panel" id="customers-management" hidden>
+        <div class="panel-heading">
+          <div><p class="eyebrow">Mijozlar bazasi</p><h2>Mijozlar</h2></div>
+          <div class="panel-actions"><button class="outline-button compact-button" type="button" data-export-customers>CSV eksport</button><button class="button-gold" type="button" data-refresh-customers>Yangilash</button></div>
+        </div>
+        <div class="customer-stats" aria-label="Mijozlar statistikasi"><div><span>Jami mijozlar</span><strong data-customer-stat="total">0</strong></div><div><span>VIP mijozlar</span><strong data-customer-stat="vip">0</strong></div><div><span>Yangi mijozlar</span><strong data-customer-stat="new">0</strong></div><div><span>O‘rtacha xarid</span><strong data-customer-stat="average">0 so‘m</strong></div></div>
+        <div class="products-toolbar">
+          <label class="admin-search">Qidirish<input type="search" id="customer-search" placeholder="Ism, email yoki telefon..."></label>
+          <label class="admin-select">Segment<select id="customer-segment-filter"><option value="all">Barchasi</option><option value="active">Faol mijozlar</option><option value="new">Yangi mijozlar</option><option value="vip">VIP mijozlar</option><option value="blocked">Bloklanganlar</option></select></label>
+        </div>
+        <div class="table-wrap">
+          <table class="customers-table">
+            <thead><tr><th>Mijoz</th><th>Aloqa</th><th>Buyurtmalar</th><th>Jami xarid</th><th>Daraja</th><th>Segment</th><th>Amallar</th></tr></thead>
+            <tbody id="customers-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="inventory-section panel" id="inventory-management" hidden>
+        <div class="panel-heading">
+          <div><p class="eyebrow">Ombor nazorati</p><h2>Ombor</h2></div>
+          <div class="panel-actions"><button class="outline-button compact-button" type="button" data-export-inventory>CSV eksport</button><button class="button-gold" type="button" data-refresh-inventory>Yangilash</button></div>
+        </div>
+        <div class="inventory-stats" aria-label="Ombor statistikasi">
+          <div><span>Jami SKU</span><strong data-inventory-stat="sku">0</strong></div>
+          <div><span>Jami qoldiq</span><strong data-inventory-stat="units">0</strong></div>
+          <div><span>Kam qolgan</span><strong data-inventory-stat="low">0</strong></div>
+          <div><span>Ombor qiymati</span><strong data-inventory-stat="value">0 so‘m</strong></div>
+        </div>
+        <div class="products-toolbar inventory-toolbar">
+          <label class="admin-search">Qidirish<input type="search" id="inventory-search" placeholder="Mahsulot yoki brend..."></label>
+          <label class="admin-select">Holat<select id="inventory-stock-filter"><option value="all">Barchasi</option><option value="available">Mavjud</option><option value="low">Kam qolgan</option><option value="soldout">Sotilgan</option></select></label>
+          <label class="admin-select">Ogohlantirish chegarasi<select id="inventory-threshold"><option value="3">3 dona</option><option value="5">5 dona</option><option value="10">10 dona</option></select></label>
+        </div>
+        <div class="inventory-alert" id="inventory-alert" role="status" hidden></div>
+        <div class="table-wrap"><table class="inventory-table"><thead><tr><th>Mahsulot</th><th>Brend</th><th>Narx</th><th>Qoldiq</th><th>Holat</th><th>Ombor qiymati</th><th>Amallar</th></tr></thead><tbody id="inventory-table-body"></tbody></table></div>
+        <div class="inventory-forecast"><div class="panel-heading"><div><p class="eyebrow">Savdo prognozi</p><h2>Talab yuqori mahsulotlar</h2></div></div><div id="inventory-forecast-list"></div></div>
+      </section>
+
+      <section class="payments-section panel" id="payments-management" hidden>
+        <div class="panel-heading">
+          <div><p class="eyebrow">Moliya nazorati</p><h2>To‘lovlar</h2></div>
+          <div class="panel-actions"><button class="outline-button compact-button" type="button" data-export-payments>CSV eksport</button><button class="button-gold" type="button" data-refresh-payments>Yangilash</button></div>
+        </div>
+        <div class="payment-stats" aria-label="To‘lov statistikasi">
+          <div><span>Jami tushum</span><strong data-payment-stat="total">0 so‘m</strong></div>
+          <div><span>To‘langan</span><strong data-payment-stat="paid">0 so‘m</strong></div>
+          <div><span>Kutilayotgan</span><strong data-payment-stat="pending">0 so‘m</strong></div>
+          <div><span>To‘lovlar soni</span><strong data-payment-stat="count">0</strong></div>
+        </div>
+        <div class="products-toolbar payment-toolbar">
+          <label class="admin-search">Qidirish<input type="search" id="payment-search" placeholder="Buyurtma yoki mijoz..."></label>
+          <label class="admin-select">Usul<select id="payment-method-filter"><option value="all">Barchasi</option><option value="Click">Click</option><option value="Payme">Payme</option><option value="Karta">Karta</option><option value="Uzum Bank">Uzum Bank</option><option value="Naqd">Naqd</option></select></label>
+          <label class="admin-select">Holat<select id="payment-status-filter"><option value="all">Barchasi</option><option value="paid">To‘langan</option><option value="pending">Kutilmoqda</option><option value="refunded">Qaytarilgan</option></select></label>
+        </div>
+        <div class="table-wrap"><table class="payments-table"><thead><tr><th>To‘lov</th><th>Buyurtma</th><th>Mijoz</th><th>Usul</th><th>Summa</th><th>Holat</th><th>Amallar</th></tr></thead><tbody id="payments-table-body"></tbody></table></div>
+      </section>
+
+      <section class="promos-section panel" id="promos-management" hidden>
+        <div class="panel-heading">
+          <div><p class="eyebrow">Chegirmalar boshqaruvi</p><h2>Promo-kodlar</h2></div>
+          <div class="panel-actions"><button class="outline-button compact-button" type="button" data-export-promos>CSV eksport</button><button class="button-gold" type="button" data-new-promo>+ Yangi kod</button></div>
+        </div>
+        <div class="payment-stats promo-stats" aria-label="Promo-kod statistikasi">
+          <div><span>Jami kodlar</span><strong data-promo-stat="total">0</strong></div>
+          <div><span>Faol kodlar</span><strong data-promo-stat="active">0</strong></div>
+          <div><span>Jami ishlatilgan</span><strong data-promo-stat="used">0</strong></div>
+          <div><span>Chegirma qiymati</span><strong data-promo-stat="discount">0 so‘m</strong></div>
+        </div>
+        <div class="products-toolbar payment-toolbar">
+          <label class="admin-search">Qidirish<input type="search" id="promo-search" placeholder="Promo-kod yoki izoh..."></label>
+          <label class="admin-select">Holat<select id="promo-status-filter"><option value="all">Barchasi</option><option value="active">Faol</option><option value="inactive">Nofaol</option><option value="expired">Muddati tugagan</option></select></label>
+        </div>
+        <form class="promo-form" id="promo-form" hidden>
+          <input type="hidden" name="id">
+          <label>Kod<input name="code" required maxlength="24" placeholder="NOXAR10"></label>
+          <label>Chegirma turi<select name="type"><option value="percent">Foiz (%)</option><option value="fixed">Summa (so‘m)</option></select></label>
+          <label>Qiymat<input name="value" type="number" min="1" required placeholder="10"></label>
+          <label>Minimal buyurtma<input name="minOrder" type="number" min="0" value="0"></label>
+          <label>Amal qilish muddati<input name="expires" type="date"></label>
+          <label>Foydalanish limiti<input name="limit" type="number" min="0" value="0"></label>
+          <label class="promo-wide">Izoh<input name="note" placeholder="Yangi mijozlar uchun"></label>
+          <div class="promo-form-actions"><button type="submit" class="button-gold">Saqlash</button><button type="button" class="outline-button compact-button" data-cancel-promo>Bekor qilish</button></div>
+        </form>
+        <div class="table-wrap"><table class="promos-table"><thead><tr><th>Kod</th><th>Chegirma</th><th>Shartlar</th><th>Foydalanish</th><th>Muddat</th><th>Holat</th><th>Amallar</th></tr></thead><tbody id="promos-table-body"></tbody></table></div>
+      </section>
+
+      <section class="reviews-section panel" id="reviews-management" hidden>
+        <div class="panel-heading">
+          <div><p class="eyebrow">Mijozlar fikri</p><h2>Sharhlar</h2></div>
+          <div class="panel-actions"><button class="outline-button compact-button" type="button" data-export-reviews>CSV eksport</button><button class="button-gold" type="button" data-refresh-reviews>Yangilash</button></div>
+        </div>
+        <div class="payment-stats review-stats" aria-label="Sharhlar statistikasi">
+          <div><span>Jami sharhlar</span><strong data-review-stat="total">0</strong></div>
+          <div><span>Kutilayotgan</span><strong data-review-stat="pending">0</strong></div>
+          <div><span>O‘rtacha reyting</span><strong data-review-stat="average">0.0 ★</strong></div>
+          <div><span>Tasdiqlangan</span><strong data-review-stat="approved">0</strong></div>
+        </div>
+        <div class="products-toolbar payment-toolbar">
+          <label class="admin-search">Qidirish<input type="search" id="review-search" placeholder="Mahsulot, ism yoki sharh..."></label>
+          <label class="admin-select">Holat<select id="review-status-filter"><option value="all">Barchasi</option><option value="pending">Kutilmoqda</option><option value="approved">Tasdiqlangan</option><option value="rejected">Rad etilgan</option></select></label>
+          <label class="admin-select">Reyting<select id="review-rating-filter"><option value="all">Barchasi</option><option value="5">5 yulduz</option><option value="4">4 yulduz</option><option value="3">3 yulduz</option><option value="2">2 yulduz</option><option value="1">1 yulduz</option></select></label>
+        </div>
+        <div class="table-wrap"><table class="reviews-table"><thead><tr><th>Mijoz</th><th>Mahsulot</th><th>Reyting</th><th>Sharh</th><th>Holat</th><th>Amallar</th></tr></thead><tbody id="reviews-table-body"></tbody></table></div>
+      </section>
+
+      <section class="campaigns-section panel" id="campaigns-management" hidden>
+        <div class="panel-heading">
+          <div><p class="eyebrow">Marketing markazi</p><h2>Bannerlar va aksiyalar</h2></div>
+          <div class="panel-actions"><button class="outline-button compact-button" type="button" data-export-campaigns>CSV eksport</button><button class="button-gold" type="button" data-new-campaign>+ Yangi kampaniya</button></div>
+        </div>
+        <div class="payment-stats campaign-stats" aria-label="Kampaniya statistikasi">
+          <div><span>Jami kampaniyalar</span><strong data-campaign-stat="total">0</strong></div>
+          <div><span>Faol kampaniyalar</span><strong data-campaign-stat="active">0</strong></div>
+          <div><span>Bannerlar</span><strong data-campaign-stat="banners">0</strong></div>
+          <div><span>Aksiyalar</span><strong data-campaign-stat="offers">0</strong></div>
+        </div>
+        <div class="products-toolbar payment-toolbar">
+          <label class="admin-search">Qidirish<input type="search" id="campaign-search" placeholder="Sarlavha yoki kod..."></label>
+          <label class="admin-select">Turi<select id="campaign-type-filter"><option value="all">Barchasi</option><option value="banner">Banner</option><option value="offer">Aksiya</option></select></label>
+          <label class="admin-select">Holat<select id="campaign-status-filter"><option value="all">Barchasi</option><option value="active">Faol</option><option value="inactive">Nofaol</option><option value="expired">Muddati tugagan</option></select></label>
+        </div>
+        <form class="campaign-form" id="campaign-form" hidden>
+          <input type="hidden" name="id">
+          <label>Turi<select name="type"><option value="banner">Banner</option><option value="offer">Aksiya</option></select></label>
+          <label>Sarlavha<input name="title" required placeholder="Yangi kolleksiya"></label>
+          <label>Qisqa matn<input name="text" required placeholder="15% chegirma va bepul yetkazib berish"></label>
+          <label>CTA matni<input name="cta" value="Batafsil"></label>
+          <label>Havola<input name="link" value="#new"></label>
+          <label>Promo-kod<input name="promo" placeholder="NOXAR10"></label>
+          <label>Boshlanish sanasi<input name="starts" type="date"></label>
+          <label>Tugash sanasi<input name="ends" type="date"></label>
+          <label>Rang<select name="theme"><option value="gold">Gold</option><option value="dark">Dark</option><option value="cream">Cream</option></select></label>
+          <label class="campaign-wide">Banner rasmi URL<input name="image" type="url" placeholder="https://..."></label>
+          <div class="campaign-preview" id="campaign-preview">Preview shu yerda ko‘rinadi</div>
+          <div class="campaign-form-actions"><button type="submit" class="button-gold">Saqlash</button><button type="button" class="outline-button compact-button" data-cancel-campaign>Bekor qilish</button></div>
+        </form>
+        <div class="table-wrap"><table class="campaigns-table"><thead><tr><th>Kampaniya</th><th>Turi</th><th>CTA / Kod</th><th>Muddat</th><th>Holat</th><th>Amallar</th></tr></thead><tbody id="campaigns-table-body"></tbody></table></div>
+      </section>
+
+      <section class="reports-section panel" id="reports-management" hidden>
+        <div class="panel-heading">
+          <div><p class="eyebrow">Analitika markazi</p><h2>Hisobotlar</h2></div>
+          <div class="panel-actions"><button class="outline-button compact-button" type="button" data-export-reports>CSV eksport</button><button class="button-gold" type="button" data-refresh-reports>Yangilash</button></div>
+        </div>
+        <div class="reports-toolbar">
+          <label class="admin-select">Davr<select id="report-period"><option value="7">So‘nggi 7 kun</option><option value="30" selected>So‘nggi 30 kun</option><option value="90">So‘nggi 90 kun</option><option value="all">Barcha vaqt</option></select></label>
+          <span class="report-updated" id="report-updated">Hisobot yangilanmoqda...</span>
+        </div>
+        <div class="payment-stats report-stats" aria-label="Hisobot statistikasi">
+          <div><span>Jami savdo</span><strong data-report-stat="revenue">0 so‘m</strong><small data-report-stat="revenue-change">—</small></div>
+          <div><span>Buyurtmalar</span><strong data-report-stat="orders">0</strong><small data-report-stat="orders-change">—</small></div>
+          <div><span>O‘rtacha chek</span><strong data-report-stat="average">0 so‘m</strong><small data-report-stat="average-change">—</small></div>
+          <div><span>Konversiya / yetkazildi</span><strong data-report-stat="delivered">0%</strong><small data-report-stat="delivered-change">—</small></div>
+        </div>
+        <div class="reports-grid">
+          <article class="report-card report-chart-card"><div class="report-card-heading"><div><p class="eyebrow">Savdo dinamikasi</p><h3>Kunlik tushum</h3></div><span class="report-legend"><i></i> Tushum</span></div><div class="report-bars" id="report-revenue-chart"></div></article>
+          <article class="report-card"><div class="report-card-heading"><div><p class="eyebrow">Buyurtmalar</p><h3>Statuslar</h3></div></div><div class="report-breakdown" id="report-status-breakdown"></div></article>
+          <article class="report-card"><div class="report-card-heading"><div><p class="eyebrow">Mahsulotlar</p><h3>Eng ko‘p sotilganlar</h3></div></div><div class="report-ranking" id="report-products-ranking"></div></article>
+          <article class="report-card"><div class="report-card-heading"><div><p class="eyebrow">To‘lovlar</p><h3>Usullar bo‘yicha</h3></div></div><div class="report-breakdown" id="report-payment-breakdown"></div></article>
+        </div>
+      </section>
+
+      <section class="profile-section" id="profile-management" hidden>
+        <div class="profile-page-heading"><div><p class="eyebrow">Account center</p><h2>Admin profili</h2><p>Shaxsiy ma’lumotlar, xavfsizlik va tizim sozlamalarini boshqaring.</p></div><span class="verification-badge" data-profile-verification>✓ Tasdiqlangan profil</span></div>
+        <div class="profile-layout">
+          <aside class="profile-sidebar panel">
+            <div class="profile-avatar-large"><img data-profile-avatar alt="Admin avatar"><span data-profile-avatar-fallback>NA</span><label class="avatar-upload" title="Avatarni almashtirish">✎<input id="profile-avatar-input" type="file" accept="image/*" aria-label="Profil rasmini yuklash"></label></div><button class="table-action" data-remove-avatar type="button">Avatarni o‘chirish</button>
+            <h3 data-profile-name>Admin</h3><p data-profile-role>Super Admin</p><span class="profile-status active" data-profile-status>Active</span>
+            <div class="profile-completion"><div><span>Profil to‘liqligi</span><b data-profile-completion>0%</b></div><i><em data-profile-progress></em></i></div>
+            <nav class="profile-tabs" aria-label="Profil bo‘limlari"><button class="active" data-profile-tab="overview">Umumiy</button><button data-profile-tab="security">Xavfsizlik</button><button data-profile-tab="notifications">Bildirishnomalar</button><button data-profile-tab="preferences">Preferensiyalar</button></nav>
+          </aside>
+          <div class="profile-content">
+            <div class="profile-tab-panel active" data-profile-panel="overview">
+              <article class="panel profile-hero-card"><div><p class="eyebrow">Xush kelibsiz</p><h2 data-profile-hero-name>Admin</h2><p data-profile-bio>NOXAR PARFUM boshqaruv panelining asosiy administratori.</p></div><div class="profile-hero-meta"><span>Oxirgi kirish<strong data-profile-last-login>—</strong></span><span>Account yaratilgan<strong data-profile-created>—</strong></span></div></article>
+              <div class="profile-stat-grid"><div class="profile-stat"><span>Total logins</span><strong data-profile-stat="logins">0</strong></div><div class="profile-stat"><span>Security score</span><strong data-profile-stat="score">0%</strong></div><div class="profile-stat"><span>Completed actions</span><strong data-profile-stat="actions">0</strong></div><div class="profile-stat"><span>System usage</span><strong data-profile-stat="usage">0%</strong></div></div>
+              <form class="panel profile-form" id="profile-details-form"><div class="panel-heading"><div><p class="eyebrow">Profile settings</p><h3>Shaxsiy ma’lumotlar</h3></div><button class="button-gold compact-button" type="submit">Saqlash</button></div><div class="profile-form-grid"><label>To‘liq ism<input name="fullName" required></label><label>Username<input name="username" required pattern="[A-Za-z0-9_.\-]{3,24}"></label><label>Email<input name="email" type="email" required></label><label>Telefon<input name="phone" type="tel" required></label><label>Lavozim<input name="role" required></label><label>Status<select name="status"><option value="active">Active</option><option value="suspended">Suspended</option><option value="offline">Offline</option></select></label><label class="profile-wide">Bio / About<textarea name="bio" rows="3" maxlength="280"></textarea></label></div></form>
+            </div>
+            <div class="profile-tab-panel" data-profile-panel="security" hidden>
+              <form class="panel profile-form" id="profile-password-form"><div class="panel-heading"><div><p class="eyebrow">Security</p><h3>Parolni almashtirish</h3></div><span class="security-score" data-security-score>0%</span></div><div class="profile-form-grid"><label>Joriy parol<input name="current" type="password" required minlength="6"></label><label>Yangi parol<input name="next" type="password" required minlength="8"></label><label>Tasdiqlash<input name="confirm" type="password" required minlength="8"></label></div><button class="button-gold compact-button" type="submit">Parolni yangilash</button></form>
+              <div class="profile-security-grid"><article class="panel security-card"><div class="panel-heading"><div><p class="eyebrow">Qo‘shimcha himoya</p><h3>2FA autentifikatsiya</h3></div><label class="switch"><input type="checkbox" data-security-toggle="twoFactor"><span></span></label></div><p>Hisobingizga kirishda qo‘shimcha tasdiqlash kodini talab qiling.</p></article><article class="panel security-card"><div class="panel-heading"><div><p class="eyebrow">Faol qurilmalar</p><h3>Session management</h3></div><button class="outline-button compact-button" data-logout-all type="button">Barchasidan chiqish</button></div><div data-session-list></div></article></div>
+              <article class="panel activity-card"><div class="panel-heading"><div><p class="eyebrow">Audit trail</p><h3>Login tarixi va security activity</h3></div></div><div data-security-logs></div></article>
+            </div>
+            <div class="profile-tab-panel" data-profile-panel="notifications" hidden><form class="panel profile-form" id="profile-notification-form"><div class="panel-heading"><div><p class="eyebrow">Notification settings</p><h3>Bildirishnomalar</h3></div><button class="button-gold compact-button" type="submit">Saqlash</button></div><div class="settings-list"><label><span>Email notifications<small>Hisobotlar va buyurtmalar haqida email</small></span><input type="checkbox" name="email" checked></label><label><span>Push notifications<small>Brauzer bildirishnomalari</small></span><input type="checkbox" name="push" checked></label><label><span>SMS notifications<small>Muhim account xabarlari</small></span><input type="checkbox" name="sms"></label><label><span>Marketing notifications<small>Aksiyalar va yangi funksiyalar</small></span><input type="checkbox" name="marketing"></label><label><span>Security alerts<small>Xavfsizlik o‘zgarishlari</small></span><input type="checkbox" name="security" checked></label></div></form></div>
+            <div class="profile-tab-panel" data-profile-panel="preferences" hidden><form class="panel profile-form" id="profile-preferences-form"><div class="panel-heading"><div><p class="eyebrow">Preferences</p><h3>Tizim preferensiyalari</h3></div><button class="button-gold compact-button" type="submit">Saqlash</button></div><div class="profile-form-grid"><label>Mavzu<select name="theme"><option value="dark">Dark mode</option><option value="light">Light mode</option></select></label><label>Til<select name="language"><option>O‘zbekcha</option><option>English</option><option>Русский</option></select></label><label>Timezone<select name="timezone"><option>Asia/Tashkent (UTC+5)</option><option>Europe/Istanbul (UTC+3)</option><option>UTC</option></select></label><label>Sana formati<select name="dateFormat"><option>DD.MM.YYYY</option><option>YYYY-MM-DD</option><option>MM/DD/YYYY</option></select></label><label class="profile-wide">Dashboard customization<select name="dashboard"><option value="compact">Compact view</option><option value="comfortable">Comfortable view</option></select></label></div></form><div class="profile-data-actions panel"><h3>Privacy & account</h3><div><button class="outline-button compact-button" data-download-data type="button">Personal data yuklash</button><button class="outline-button compact-button danger-outline" data-delete-account type="button">Account o‘chirish so‘rovi</button></div></div><div class="profile-security-grid profile-integrations"><article class="panel security-card"><div class="panel-heading"><div><p class="eyebrow">Connected accounts</p><h3>Ulangan akkauntlar</h3></div></div><div class="connected-row"><strong>Google</strong><span>Ulanmagan</span><button class="table-action" data-connect-account="Google" type="button">Ulash</button></div><div class="connected-row"><strong>GitHub</strong><span>Ulanmagan</span><button class="table-action" data-connect-account="GitHub" type="button">Ulash</button></div><div class="connected-row"><strong>Microsoft</strong><span>Ulanmagan</span><button class="table-action" data-connect-account="Microsoft" type="button">Ulash</button></div></article><article class="panel security-card"><div class="panel-heading"><div><p class="eyebrow">Developer access</p><h3>API tokenlar</h3></div><button class="outline-button compact-button" data-create-token type="button">+ Token</button></div><div data-token-list><p class="muted">Hali token yaratilmagan.</p></div></article></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-placeholder panel" id="section-placeholder" hidden>
+        <div class="placeholder-icon">✦</div>
+        <p class="eyebrow">Admin bo‘limi</p>
+        <h2 id="placeholder-title">Bo‘lim</h2>
+        <p id="placeholder-description">Bu bo‘lim keyingi bosqichda demo funksiyalar bilan to‘ldiriladi.</p>
+        <button class="button-gold" type="button" data-placeholder-dashboard>Dashboardga qaytish</button>
+      </section>
+
+      <footer class="admin-footer"><span>© 2026 NOXAR PARFUM ADMIN</span><span>Demo boshqaruv paneli</span></footer>
+    </main>
+  </div>
+  <div class="admin-toast" role="status"></div>
+  <div class="logout-modal" aria-hidden="true">
+    <div class="admin-modal-backdrop" data-close-logout></div>
+    <section class="logout-card" role="dialog" aria-modal="true" aria-labelledby="logout-title">
+      <div class="logout-icon">↪</div><h2 id="logout-title">Admin paneldan chiqish</h2><p>Joriy qurilmadagi session yopiladi. Saqlangan mahsulotlar, buyurtmalar va sozlamalar o‘chirilmaydi.</p>
+      <div class="logout-actions"><button type="button" class="outline-button" data-close-logout>Bekor qilish</button><button type="button" class="button-gold" data-confirm-logout>Chiqish</button></div>
+    </section>
+  </div>
+  <div class="logged-out-screen" hidden><div class="logged-out-card panel"><div class="logout-icon">✓</div><p class="eyebrow">Session yakunlandi</p><h2>Siz tizimdan chiqdingiz</h2><p>Admin panelga qayta kirish uchun quyidagi tugmani bosing.</p><button type="button" class="button-gold" data-demo-login>Qayta kirish</button></div></div>
+  <div class="order-modal-admin" aria-hidden="true">
+    <div class="admin-modal-backdrop" data-close-order-modal></div>
+    <section class="order-detail-card" role="dialog" aria-modal="true" aria-labelledby="order-detail-title">
+      <div class="modal-form-heading"><div><p class="eyebrow">Buyurtma tafsilotlari</p><h2 id="order-detail-title"></h2></div><button type="button" class="modal-close-admin" data-close-order-modal>×</button></div>
+      <div class="order-detail-grid" id="order-detail-content"></div>
+    </section>
+  </div>
+  <div class="customer-modal-admin" aria-hidden="true">
+    <div class="admin-modal-backdrop" data-close-customer-modal></div>
+    <section class="customer-detail-card" role="dialog" aria-modal="true" aria-labelledby="customer-detail-title">
+      <div class="modal-form-heading"><div><p class="eyebrow">Mijoz profili</p><h2 id="customer-detail-title"></h2></div><button type="button" class="modal-close-admin" data-close-customer-modal>×</button></div>
+      <div class="customer-detail-grid" id="customer-detail-content"></div>
+      <form class="customer-edit-form" id="customer-edit-form">
+        <input type="hidden" name="id">
+        <label>Ism<input name="name" required></label><label>Email<input name="email" type="email"></label>
+        <label>Telefon<input name="phone"></label><label>Tug‘ilgan sana<input name="birthday" type="date"></label>
+        <label>Individual promo-kod<input name="promo" placeholder="VIP10"></label>
+        <label>VIP daraja<select name="level"><option>Bronze</option><option>Silver</option><option>Gold</option><option>Platinum</option></select></label>
+        <label class="checkbox-field"><input name="vip" type="checkbox"> VIP segment</label>
+        <label class="customer-detail-wide">Manzil<input name="address"></label>
+        <label class="customer-detail-wide">Admin izohi<textarea name="note" rows="2"></textarea></label>
+        <div class="customer-edit-actions"><button type="submit" class="button-gold">Saqlash</button><button type="button" class="outline-button compact-button" data-customer-message>Demo xabar yuborish</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="product-modal-admin" aria-hidden="true">
+    <div class="admin-modal-backdrop" data-close-product-modal></div>
+    <form class="admin-product-form">
+      <div class="modal-form-heading"><div><p class="eyebrow">Katalog</p><h2 id="product-form-title">Mahsulot qo‘shish</h2></div><button type="button" class="modal-close-admin" data-close-product-modal>×</button></div>
+      <input type="hidden" name="id">
+      <div class="admin-form-grid">
+        <label>Mahsulot nomi<input name="name" required placeholder="NO. 04 Lumière"></label>
+        <label>Brend<input name="brand" required placeholder="NOXAR"></label>
+        <label>Narx (so‘m)<input name="amount" type="number" min="0" required placeholder="890000"></label>
+        <label>Stok soni<input name="stock" type="number" min="0" required placeholder="10"></label>
+        <label>Bo‘lim<select name="category" required><option value="atirlar">Atirlar</option><option value="body-fragrance">Tana uchun hushbo‘y mahsulotlar</option><option value="deodorants">Dezodorantlar</option><option value="perfume-oils">Parfyumeriya moylari</option><option value="home-fragrance">Uy uchun hushbo‘y mahsulotlar</option><option value="bath-shower">Dush va vanna mahsulotlari</option><option value="accessories">Parfyumeriya aksessuarlari</option></select></label>
+        <label>Jins<select name="gender" required><option value="unisex">Uniseks</option><option value="erkaklar">Erkaklar</option><option value="ayollar">Ayollar</option></select></label>
+        <label>Hid oilasi<select name="family"><option value="amber">Amberli</option><option value="woody">Yog‘ochli</option><option value="floral">Gulli</option></select></label>
+      </div>
+      <label>Qisqa tavsif<textarea name="notes" rows="3" required placeholder="Asosiy notalar..."></textarea></label>
+      <div class="media-fields">
+        <label>Mahsulot rasmi<input name="image" type="file" accept="image/*"><small>JPG, PNG yoki WebP</small></label>
+        <label>Mahsulot video roligi<input name="video" type="file" accept="video/*"><small>MP4 yoki WebM</small></label>
+      </div>
+      <div class="media-preview" aria-live="polite"></div>
+      <div class="admin-form-actions"><button class="outline-button" type="button" data-close-product-modal>Bekor qilish</button><button class="button-gold" type="submit">Saqlash</button></div>
+    </form>
+  </div>
+  <script src="admin.js"></script>
+</body>
+</html>

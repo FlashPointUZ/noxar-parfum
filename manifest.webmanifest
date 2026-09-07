@@ -1,0 +1,9 @@
+{
+  "name": "NOXAR PARFUM",
+  "short_name": "NOXAR",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#11100f",
+  "theme_color": "#11100f",
+  "description": "NOXAR premium parfumeriya do‘koni"
+}
