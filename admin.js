@@ -1,3 +1,52 @@
+const adminLoginScreen = document.querySelector('.admin-login-screen');
+const adminShell = document.querySelector('.admin-shell');
+const adminLoginForm = document.querySelector('#admin-login-form');
+const adminAuthSession = window.noxarAuth?.readSession();
+if (!adminAuthSession?.access_token) {
+  adminShell.hidden = true;
+  adminLoginScreen.hidden = false;
+} else {
+  adminShell.hidden = true;
+  adminLoginScreen.hidden = true;
+}
+
+async function verifyAdminAccess() {
+  if (!adminAuthSession?.access_token || !adminAuthSession.user?.id) return false;
+  const { data } = await noxarSupabase.from('admin_users')
+    .select('user_id')
+    .eq('user_id', adminAuthSession.user.id);
+  return Array.isArray(data) && data.some((admin) => admin.user_id === adminAuthSession.user.id);
+}
+
+if (adminAuthSession?.access_token) {
+  verifyAdminAccess().then((isAdmin) => {
+    if (isAdmin) {
+      adminShell.hidden = false;
+      return;
+    }
+    adminLoginScreen.hidden = false;
+    adminLoginScreen.querySelector('.admin-login-error').textContent = 'Bu akkauntda admin huquqi yo‘q.';
+    window.noxarAuth.signOut();
+  }).catch((error) => {
+    console.error('Admin role verification failed:', error);
+    adminLoginScreen.hidden = false;
+    adminLoginScreen.querySelector('.admin-login-error').textContent = 'Admin huquqini tekshirishda xatolik yuz berdi.';
+  });
+}
+
+adminLoginForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const errorElement = form.querySelector('.admin-login-error');
+  errorElement.textContent = '';
+  try {
+    await window.noxarAuth.signIn(form.elements.email.value.trim(), form.elements.password.value);
+    window.location.reload();
+  } catch (error) {
+    errorElement.textContent = error.message || 'Kirish amalga oshmadi.';
+  }
+});
+
 const demoOrders = [];
 
 const lowStockProducts = [
@@ -26,6 +75,33 @@ function saveAdminProducts() {
   localStorage.setItem('noxar-admin-products', JSON.stringify(adminProducts));
 }
 
+async function loadRemoteAdminProducts() {
+  if (!window.noxarSupabase || !adminAuthSession?.access_token) return;
+  try {
+    const { data } = await noxarSupabase.from('products').select('*').order('created_at', { ascending: false });
+    if (!data?.length) return;
+    adminProducts = data.map((product) => ({
+      id: product.id,
+      name: product.name,
+      brand: product.brand,
+      amount: Number(product.price || 0),
+      stock: Number(product.stock || 0),
+      category: product.category || 'atirlar',
+      gender: product.gender || 'unisex',
+      family: product.family || 'amber',
+      notes: product.description || '',
+      image: product.image || '',
+      video: ''
+    }));
+    saveAdminProducts();
+    renderProducts();
+    renderInventory();
+  } catch (error) {
+    showToast('Supabase mahsulotlarini yuklashda xatolik yuz berdi');
+    console.error('Admin products load failed:', error);
+  }
+}
+
 function productStatus(stock) {
   if (stock === 0) return ['soldout', 'Sotilgan'];
   if (stock <= 3) return ['low', 'Kam qolgan'];
@@ -43,12 +119,12 @@ function productGender(product) {
 
 const departmentLabels = {
   atirlar: 'Atirlar',
-  'body-fragrance': 'Tana uchun hushbo‘y mahsulotlar',
-  deodorants: 'Dezodorantlar',
-  'perfume-oils': 'Parfyumeriya moylari',
-  'home-fragrance': 'Uy uchun hushbo‘y mahsulotlar',
-  'bath-shower': 'Dush va vanna mahsulotlari',
-  accessories: 'Parfyumeriya aksessuarlari'
+  'body-fragrance': 'Tana parvarishi',
+  deodorants: 'Dezodorant',
+  'perfume-oils': 'Parfyum moylari',
+  'home-fragrance': 'Uy aromati',
+  'bath-shower': 'Dush & vanna',
+  accessories: 'Aksessuarlar'
 };
 
 function renderProducts() {
@@ -84,7 +160,9 @@ function openProductForm(product) {
   form.elements.amount.value = product?.amount || '';
   form.elements.stock.value = product?.stock ?? '';
   form.elements.category.value = product ? productDepartment(product) : 'atirlar';
+  syncAdminCategoryPicker();
   form.elements.gender.value = product ? productGender(product) : 'unisex';
+  syncAdminGenderPicker();
   form.elements.family.value = product?.family || 'amber';
   form.elements.notes.value = product?.notes || '';
   form.dataset.currentImage = product?.image || '';
@@ -93,6 +171,80 @@ function openProductForm(product) {
   document.querySelector('#product-form-title').textContent = product ? 'Mahsulotni tahrirlash' : 'Mahsulot qo‘shish';
   document.querySelector('.product-modal-admin').classList.add('open');
   document.querySelector('.product-modal-admin').setAttribute('aria-hidden', 'false');
+}
+
+const adminCategorySelect = document.querySelector('.admin-category-picker select');
+const adminCategoryPicker = document.querySelector('.admin-category-picker');
+const adminCategoryTrigger = document.querySelector('.admin-category-trigger');
+const adminCategoryMenu = document.querySelector('.admin-category-menu');
+function syncAdminCategoryPicker() {
+  if (!adminCategorySelect || !adminCategoryMenu) return;
+  const selected = adminCategoryMenu.querySelector(`[data-value="${adminCategorySelect.value}"]`);
+  if (!selected) return;
+  adminCategoryTrigger.querySelector('span').textContent = selected.textContent;
+  adminCategoryMenu.querySelectorAll('[role="option"]').forEach((item) => item.setAttribute('aria-selected', item === selected ? 'true' : 'false'));
+}
+if (adminCategorySelect && adminCategoryPicker && adminCategoryTrigger && adminCategoryMenu) {
+  adminCategoryMenu.innerHTML = [...adminCategorySelect.options].map((option) => `<button type="button" role="option" data-value="${option.value}">${option.textContent}</button>`).join('');
+  adminCategoryTrigger.addEventListener('click', () => {
+    const isOpen = adminCategoryPicker.classList.toggle('open');
+    adminCategoryTrigger.setAttribute('aria-expanded', String(isOpen));
+    adminCategoryMenu.hidden = !isOpen;
+  });
+  adminCategoryMenu.addEventListener('click', (event) => {
+    const option = event.target.closest('[data-value]');
+    if (!option) return;
+    adminCategorySelect.value = option.dataset.value;
+    syncAdminCategoryPicker();
+    adminCategoryPicker.classList.remove('open');
+    adminCategoryTrigger.setAttribute('aria-expanded', 'false');
+    adminCategoryMenu.hidden = true;
+  });
+  document.addEventListener('click', (event) => {
+    if (!adminCategoryPicker.contains(event.target)) {
+      adminCategoryPicker.classList.remove('open');
+      adminCategoryTrigger.setAttribute('aria-expanded', 'false');
+      adminCategoryMenu.hidden = true;
+    }
+  });
+  syncAdminCategoryPicker();
+}
+const adminGenderSelect = document.querySelector('.admin-gender-picker select');
+const adminGenderPicker = document.querySelector('.admin-gender-picker');
+const adminGenderTrigger = document.querySelector('.admin-gender-trigger');
+const adminGenderMenu = document.querySelector('.admin-gender-menu');
+const genderIcons = { unisex: '⚥', erkaklar: '♂', ayollar: '♀' };
+function syncAdminGenderPicker() {
+  if (!adminGenderSelect || !adminGenderMenu) return;
+  const selected = adminGenderMenu.querySelector(`[data-value="${adminGenderSelect.value}"]`);
+  if (!selected) return;
+  adminGenderTrigger.querySelector('span').textContent = selected.querySelector('.gender-option-label').textContent;
+  adminGenderMenu.querySelectorAll('[role="option"]').forEach((item) => item.setAttribute('aria-selected', item === selected ? 'true' : 'false'));
+}
+if (adminGenderSelect && adminGenderPicker && adminGenderTrigger && adminGenderMenu) {
+  adminGenderMenu.innerHTML = [...adminGenderSelect.options].map((option) => `<button type="button" role="option" data-value="${option.value}"><span aria-hidden="true">${genderIcons[option.value] || '◇'}</span><span class="gender-option-label">${option.textContent}</span></button>`).join('');
+  adminGenderTrigger.addEventListener('click', () => {
+    const isOpen = adminGenderPicker.classList.toggle('open');
+    adminGenderTrigger.setAttribute('aria-expanded', String(isOpen));
+    adminGenderMenu.hidden = !isOpen;
+  });
+  adminGenderMenu.addEventListener('click', (event) => {
+    const option = event.target.closest('[data-value]');
+    if (!option) return;
+    adminGenderSelect.value = option.dataset.value;
+    syncAdminGenderPicker();
+    adminGenderPicker.classList.remove('open');
+    adminGenderTrigger.setAttribute('aria-expanded', 'false');
+    adminGenderMenu.hidden = true;
+  });
+  document.addEventListener('click', (event) => {
+    if (!adminGenderPicker.contains(event.target)) {
+      adminGenderPicker.classList.remove('open');
+      adminGenderTrigger.setAttribute('aria-expanded', 'false');
+      adminGenderMenu.hidden = true;
+    }
+  });
+  syncAdminGenderPicker();
 }
 
 function readFileAsDataUrl(file) {
@@ -139,6 +291,72 @@ const statusText = {
   processing: 'Jarayonda',
   cancelled: 'Bekor qilingan'
 };
+
+const reservationStatusText = { pending: 'Kutilmoqda', confirmed: 'Tasdiqlangan', cancelled: 'Bekor qilingan' };
+
+function readLocalReservations() {
+  try {
+    const reservations = JSON.parse(localStorage.getItem('noxar-reservations') || '[]');
+    return Array.isArray(reservations) ? reservations : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+async function readReservations() {
+  if (!window.noxarSupabase) return readLocalReservations();
+  const { data, error } = await noxarSupabase.from('reservations').select('*').order('created_at', { ascending: false });
+  if (error) throw error;
+  return data.map((reservation) => ({
+    id: reservation.id,
+    productName: reservation.product_name,
+    brand: reservation.brand,
+    type: reservation.request_type,
+    status: reservation.status,
+    createdAt: reservation.created_at,
+    quantity: reservation.quantity,
+    customer: {
+      name: reservation.customer_name,
+      phone: reservation.customer_phone,
+      message: reservation.customer_message
+    }
+  }));
+}
+
+async function renderReservations() {
+  const query = document.querySelector('#reservation-search')?.value.trim().toLowerCase() || '';
+  const status = document.querySelector('#reservation-status-filter')?.value || 'all';
+  let reservations;
+  try {
+    reservations = await readReservations();
+  } catch (error) {
+    showToast('So‘rovlarni yuklashda xatolik yuz berdi');
+    reservations = readLocalReservations();
+  }
+  const visibleReservations = reservations.filter((reservation) => {
+    const customer = reservation.customer || {};
+    return `${customer.name || ''} ${customer.phone || ''} ${reservation.productName || ''}`.toLowerCase().includes(query)
+      && (status === 'all' || (reservation.status || 'pending') === status);
+  });
+  document.querySelector('#reservations-table-body').innerHTML = visibleReservations.map((reservation) => {
+    const customer = reservation.customer || {};
+    const reservationStatus = reservation.status || 'pending';
+    return `<tr><td>${new Date(reservation.createdAt).toLocaleDateString('uz-UZ')}</td><td class="customer-cell">${customer.name || '—'}</td><td>${customer.phone || '—'}</td><td>${reservation.productName || '—'}<small>${reservation.brand || ''}</small></td><td>${reservation.customer?.quantity || reservation.quantity || 1} ta</td><td>${reservation.type || '—'}</td><td><select class="inline-status" data-reservation-id="${reservation.id}">${Object.entries(reservationStatusText).map(([value, label]) => `<option value="${value}" ${value === reservationStatus ? 'selected' : ''}>${label}</option>`).join('')}</select></td></tr>`;
+  }).join('') || '<tr><td colspan="7" class="empty-products">Hozircha so‘rovlar yo‘q.</td></tr>';
+}
+
+async function saveReservationStatus(id, status) {
+  if (window.noxarSupabase) {
+    const { error } = await noxarSupabase.from('reservations').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) throw error;
+    return;
+  }
+  const reservations = readLocalReservations();
+  const reservation = reservations.find((item) => item.id === id);
+  if (!reservation) return;
+  reservation.status = status;
+  localStorage.setItem('noxar-reservations', JSON.stringify(reservations));
+}
 
 function readStoredOrders() {
   try {
@@ -867,6 +1085,7 @@ function closeSidebar() {
 
 const viewLabels = {
   orders: ['Buyurtmalar', 'Buyurtmalarni ko‘rish, filtrlash va statuslarini boshqarish oynasi.'],
+  'reservation-requests': ['Ajratish so‘rovlari', 'Mahsulotni ajratish yoki do‘konda hidlab ko‘rish so‘rovlarini boshqarish oynasi.'],
   customers: ['Mijozlar', 'Mijozlar profili va xarid tarixini boshqarish oynasi.'],
   inventory: ['Ombor', 'Mahsulot qoldig‘i va ombor harakatlarini boshqarish oynasi.'],
   payments: ['To‘lovlar', 'Click, Payme, Uzum Bank, karta va naqd demo to‘lovlari oynasi.'],
@@ -883,6 +1102,7 @@ function showView(view) {
   const dashboardParts = ['.welcome-row', '.stats-grid', '.dashboard-grid'];
   const productsSection = document.querySelector('#products');
   const ordersSection = document.querySelector('#orders-management');
+  const reservationsSection = document.querySelector('#reservation-requests-management');
   const customersSection = document.querySelector('#customers-management');
   const inventorySection = document.querySelector('#inventory-management');
   const paymentsSection = document.querySelector('#payments-management');
@@ -895,6 +1115,7 @@ function showView(view) {
   const isDashboard = view === 'dashboard';
   const isProducts = view === 'products';
   const isOrders = view === 'orders';
+  const isReservations = view === 'reservation-requests';
   const isCustomers = view === 'customers';
   const isInventory = view === 'inventory';
   const isPayments = view === 'payments';
@@ -908,6 +1129,7 @@ function showView(view) {
   main.classList.toggle('view-dashboard', isDashboard);
   main.classList.toggle('view-products', isProducts);
   main.classList.toggle('view-orders', isOrders);
+  main.classList.toggle('view-reservation-requests', isReservations);
   main.classList.toggle('view-customers', isCustomers);
   main.classList.toggle('view-inventory', isInventory);
   main.classList.toggle('view-payments', isPayments);
@@ -922,6 +1144,7 @@ function showView(view) {
   });
   productsSection.hidden = !isProducts;
   ordersSection.hidden = !isOrders;
+  reservationsSection.hidden = !isReservations;
   customersSection.hidden = !isCustomers;
   inventorySection.hidden = !isInventory;
   paymentsSection.hidden = !isPayments;
@@ -930,7 +1153,8 @@ function showView(view) {
   campaignsSection.hidden = !isCampaigns;
   reportsSection.hidden = !isReports;
   profileSection.hidden = !isProfile;
-  placeholder.hidden = isDashboard || isProducts || isOrders || isCustomers || isInventory || isPayments || isPromos || isReviews || isCampaigns || isReports || isProfile;
+  placeholder.hidden = isDashboard || isProducts || isOrders || isReservations || isCustomers || isInventory || isPayments || isPromos || isReviews || isCampaigns || isReports || isProfile;
+  if (isReservations) renderReservations();
   if (isPromos) renderPromos();
   if (isReviews) renderReviews();
   if (isCampaigns) renderCampaigns();
@@ -979,6 +1203,7 @@ function openLogoutModal() { document.querySelector('.logout-modal').classList.a
 function closeLogoutModal() { document.querySelector('.logout-modal').classList.remove('open'); document.querySelector('.logout-modal').setAttribute('aria-hidden', 'true'); }
 function completeLogout() {
   const profile = getAdminProfile(); profile.sessions = (profile.sessions || []).filter((session) => !session.current); addProfileLog(profile, 'Admin tizimdan chiqdi', 'Session management'); saveAdminProfile(profile);
+  window.noxarAuth?.signOut().catch((error) => console.error('Admin sign out failed:', error));
   localStorage.setItem('noxar-admin-session', JSON.stringify({ loggedOut: true, loggedOutAt: new Date().toISOString() }));
   closeLogoutModal(); document.querySelector('.admin-shell').hidden = true; document.querySelector('.logged-out-screen').hidden = false; showToast('Tizimdan muvaffaqiyatli chiqildi');
 }
@@ -986,11 +1211,10 @@ document.querySelector('.logout-link').addEventListener('click', openLogoutModal
 document.querySelectorAll('[data-close-logout]').forEach((element) => element.addEventListener('click', closeLogoutModal));
 document.querySelector('[data-confirm-logout]').addEventListener('click', completeLogout);
 document.querySelector('[data-demo-login]').addEventListener('click', () => { localStorage.removeItem('noxar-admin-session'); document.querySelector('.admin-shell').hidden = false; document.querySelector('.logged-out-screen').hidden = true; showToast('Demo session qayta tiklandi'); });
-document.querySelector('.notification-button').addEventListener('click', () => showToast('3 ta yangi bildirishnoma mavjud.'));
 document.querySelector('.date-filter').addEventListener('click', () => { const menu = document.querySelector('.date-filter-menu'); menu.hidden = !menu.hidden; document.querySelector('.date-filter').setAttribute('aria-expanded', String(!menu.hidden)); });
 document.querySelectorAll('[data-date-range]').forEach((button) => button.addEventListener('click', () => applyDashboardDateRange(button.dataset.dateRange)));
 document.addEventListener('click', (event) => { if (!event.target.closest('.date-filter-wrap')) closeDateFilter(); });
-document.querySelector('.panel-link').addEventListener('click', () => showToast('Buyurtmalar bo‘limi keyingi bosqichda ulanadi.'));
+document.querySelector('.panel-link').addEventListener('click', () => showView('orders'));
 document.querySelector('[data-dashboard-inventory]').addEventListener('click', () => showView('inventory'));
 document.querySelectorAll('#product-search, #product-category-filter, #product-gender-filter, #product-stock-filter').forEach((control) => control.addEventListener('input', () => {
   productsPage = 1;
@@ -1003,6 +1227,12 @@ document.querySelector('.products-pagination').addEventListener('click', (event)
   renderProducts();
 });
 document.querySelectorAll('#order-search, #order-payment-filter, #order-status-filter').forEach((control) => control.addEventListener('input', () => renderManagedOrders()));
+document.querySelectorAll('#reservation-search, #reservation-status-filter').forEach((control) => control.addEventListener('input', renderReservations));
+document.querySelector('[data-refresh-reservations]').addEventListener('click', async () => { await renderReservations(); showToast('Ajratish so‘rovlari yangilandi'); });
+document.querySelector('#reservations-table-body').addEventListener('change', (event) => {
+  const control = event.target.closest('[data-reservation-id]');
+  if (control) saveReservationStatus(control.dataset.reservationId, control.value).then(() => showToast('So‘rov holati saqlandi')).catch(() => showToast('Holatni saqlashda xatolik yuz berdi'));
+});
 document.querySelectorAll('#customer-search, #customer-segment-filter').forEach((control) => control.addEventListener('input', renderCustomers));
 document.querySelectorAll('#inventory-search, #inventory-stock-filter').forEach((control) => control.addEventListener('input', renderInventory));
 document.querySelector('#inventory-threshold').addEventListener('change', (event) => { localStorage.setItem('noxar-inventory-threshold', event.target.value); renderInventory(); });
@@ -1193,6 +1423,10 @@ document.querySelector('#products-table-body').addEventListener('click', (event)
     if (!window.confirm('Bu mahsulotni o‘chirishni tasdiqlaysizmi?')) return;
     const deletedProducts = JSON.parse(localStorage.getItem('noxar-deleted-products') || '[]');
     if (!deletedProducts.includes(deleteButton.dataset.productId)) deletedProducts.push(deleteButton.dataset.productId);
+    if (window.noxarSupabase && adminAuthSession?.access_token) {
+      noxarSupabase.from('products').delete().eq('id', deleteButton.dataset.productId)
+        .catch((error) => console.error('Product delete failed:', error));
+    }
     localStorage.setItem('noxar-deleted-products', JSON.stringify(deletedProducts));
     adminProducts = adminProducts.filter((product) => product.id !== deleteButton.dataset.productId);
     saveAdminProducts();
@@ -1226,6 +1460,30 @@ document.querySelector('.admin-product-form').addEventListener('submit', async (
   };
   if (existingId) adminProducts = adminProducts.map((item) => item.id === existingId ? product : item);
   else adminProducts.unshift(product);
+  if (window.noxarSupabase && adminAuthSession?.access_token) {
+    try {
+      const { error } = await noxarSupabase.from('products').upsert({
+        id: product.id,
+        name: product.name,
+        brand: product.brand,
+        price: product.amount,
+        stock: product.stock,
+        category: product.category,
+        gender: product.gender,
+        description: product.notes,
+        image: product.image || null,
+        active: true,
+        updated_at: new Date().toISOString()
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Product save failed:', error);
+      showToast(error?.message?.includes('row-level security')
+        ? 'Supabase products policy yoqilmagan'
+        : 'Mahsulot Supabase’ga saqlanmadi');
+      return;
+    }
+  }
   const deletedProducts = JSON.parse(localStorage.getItem('noxar-deleted-products') || '[]');
   localStorage.setItem('noxar-deleted-products', JSON.stringify(deletedProducts.filter((id) => id !== product.id)));
   saveAdminProducts();
@@ -1241,7 +1499,8 @@ document.querySelector('input[name="image"]').addEventListener('change', (event)
 });
 document.querySelector('input[name="video"]').addEventListener('change', (event) => {
   const file = event.currentTarget.files[0];
-  if (validateMediaFile(file, 'video')) renderMediaPreview(document.querySelector('input[name="image"]').files[0] ? URL.createObjectURL(document.querySelector('input[name="image"]').files[0]) : '', file ? URL.createObjectURL(file) : '');
+  const imageFile = document.querySelector('input[name="image"]')?.files?.[0];
+  if (validateMediaFile(file, 'video')) renderMediaPreview(imageFile ? URL.createObjectURL(imageFile) : '', file ? URL.createObjectURL(file) : '');
   else event.currentTarget.value = '';
 });
 document.querySelectorAll('[data-close-product-modal]').forEach((element) => element.addEventListener('click', closeProductForm));
@@ -1256,6 +1515,7 @@ renderReports();
 renderAdminProfile();
 renderNotifications();
 renderDashboardDateFilter();
+loadRemoteAdminProducts();
 if (JSON.parse(localStorage.getItem('noxar-admin-session') || '{"loggedOut":false}').loggedOut) { document.querySelector('.admin-shell').hidden = true; document.querySelector('.logged-out-screen').hidden = false; }
 document.querySelector('[data-admin-current-date]').textContent = formatAdminDate();
 const initialView = document.querySelector(`.nav-link[data-view="${window.location.hash.slice(1)}"]`)?.dataset.view || 'dashboard';

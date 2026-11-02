@@ -8,6 +8,17 @@
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
+  <div class="admin-login-screen" hidden>
+    <form class="admin-login-card" id="admin-login-form">
+      <p class="eyebrow">NOXAR PARFUM</p>
+      <h1>Admin panelga kirish</h1>
+      <p>Supabase admin akkauntingiz bilan kiring.</p>
+      <label>Email<input name="email" type="email" autocomplete="username" required placeholder="admin@example.com"></label>
+      <label>Parol<input name="password" type="password" autocomplete="current-password" required></label>
+      <button class="button-gold" type="submit">Kirish</button>
+      <small class="admin-login-error" role="alert"></small>
+    </form>
+  </div>
   <div class="admin-shell">
     <div class="sidebar-backdrop" data-close-sidebar></div>
     <aside class="sidebar" aria-label="Admin navigatsiyasi">
@@ -17,6 +28,7 @@
         <a class="nav-link active" href="#dashboard" data-view="dashboard"><span>⌂</span> Dashboard</a>
         <a class="nav-link" href="#products" data-view="products"><span>◇</span> Mahsulotlar</a>
         <a class="nav-link" href="#orders" data-view="orders"><span>▤</span> Buyurtmalar</a>
+        <a class="nav-link" href="#reservation-requests" data-view="reservation-requests"><span>♧</span> Ajratish so‘rovlari</a>
         <a class="nav-link" href="#customers" data-view="customers"><span>♙</span> Mijozlar</a>
         <a class="nav-link" href="#inventory" data-view="inventory"><span>▥</span> Ombor</a>
         <a class="nav-link" href="#payments" data-view="payments"><span>◇</span> To‘lovlar</a>
@@ -39,6 +51,7 @@
             <a href="#dashboard" data-view="dashboard">Dashboard</a>
             <a href="#products" data-view="products">Mahsulotlar</a>
             <a href="#orders" data-view="orders">Buyurtmalar</a>
+            <a href="#reservation-requests" data-view="reservation-requests">Ajratish so‘rovlari</a>
             <a href="#customers" data-view="customers">Mijozlar</a>
             <a href="#inventory" data-view="inventory">Ombor</a>
             <a href="#payments" data-view="payments">To‘lovlar</a>
@@ -95,7 +108,7 @@
         </div>
         <div class="products-toolbar">
           <label class="admin-search">Qidirish<input type="search" id="product-search" placeholder="Mahsulot yoki brend..."></label>
-          <label class="admin-select">Bo‘lim<select id="product-category-filter"><option value="all">UMUMIY</option><option value="atirlar">Atirlar</option><option value="body-fragrance">Tana uchun hushbo‘y mahsulotlar</option><option value="deodorants">Dezodorantlar</option><option value="perfume-oils">Parfyumeriya moylari</option><option value="home-fragrance">Uy uchun hushbo‘y mahsulotlar</option><option value="bath-shower">Dush va vanna mahsulotlari</option><option value="accessories">Parfyumeriya aksessuarlari</option></select></label>
+          <label class="admin-select">Bo‘lim<select id="product-category-filter"><option value="all">UMUMIY</option><option value="atirlar">Atirlar</option><option value="body-fragrance">Tana parvarishi</option><option value="deodorants">Dezodorant</option><option value="perfume-oils">Parfyum moylari</option><option value="home-fragrance">Uy aromati</option><option value="bath-shower">Dush &amp; vanna</option><option value="accessories">Aksessuarlar</option></select></label>
           <label class="admin-select">Jins<select id="product-gender-filter"><option value="all">Barchasi</option><option value="ayollar">Ayollar</option><option value="erkaklar">Erkaklar</option><option value="unisex">Uniseks</option></select></label>
           <label class="admin-select">Holat<select id="product-stock-filter"><option value="all">Barchasi</option><option value="available">Mavjud</option><option value="low">Kam qolgan</option><option value="soldout">Sotilgan</option></select></label>
         </div>
@@ -122,6 +135,23 @@
           <table class="orders-management-table">
             <thead><tr><th>Buyurtma</th><th>Mijoz</th><th>Summa</th><th>To‘lov</th><th>To‘lov holati</th><th>Buyurtma holati</th><th>Amallar</th></tr></thead>
             <tbody id="orders-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="orders-section panel reservations-section" id="reservation-requests-management" hidden>
+        <div class="panel-heading">
+          <div><p class="eyebrow">Showroom so‘rovlari</p><h2>Ajratish so‘rovlari</h2></div>
+          <button class="button-gold" type="button" data-refresh-reservations>Yangilash</button>
+        </div>
+        <div class="products-toolbar orders-toolbar">
+          <label class="admin-search">Qidirish<input type="search" id="reservation-search" placeholder="Mijoz yoki mahsulot..."></label>
+          <label class="admin-select">Holat<select id="reservation-status-filter"><option value="all">Barchasi</option><option value="pending">Kutilmoqda</option><option value="confirmed">Tasdiqlangan</option><option value="cancelled">Bekor qilingan</option></select></label>
+        </div>
+        <div class="table-wrap">
+          <table class="orders-management-table">
+            <thead><tr><th>Sana</th><th>Mijoz</th><th>Telefon</th><th>Mahsulot</th><th>Miqdor</th><th>So‘rov turi</th><th>Holat</th></tr></thead>
+            <tbody id="reservations-table-body"></tbody>
           </table>
         </div>
       </section>
@@ -370,8 +400,8 @@
         <label>Brend<input name="brand" required placeholder="NOXAR"></label>
         <label>Narx (so‘m)<input name="amount" type="number" min="0" required placeholder="890000"></label>
         <label>Stok soni<input name="stock" type="number" min="0" required placeholder="10"></label>
-        <label>Bo‘lim<select name="category" required><option value="atirlar">Atirlar</option><option value="body-fragrance">Tana uchun hushbo‘y mahsulotlar</option><option value="deodorants">Dezodorantlar</option><option value="perfume-oils">Parfyumeriya moylari</option><option value="home-fragrance">Uy uchun hushbo‘y mahsulotlar</option><option value="bath-shower">Dush va vanna mahsulotlari</option><option value="accessories">Parfyumeriya aksessuarlari</option></select></label>
-        <label>Jins<select name="gender" required><option value="unisex">Uniseks</option><option value="erkaklar">Erkaklar</option><option value="ayollar">Ayollar</option></select></label>
+        <label class="admin-category-picker">Bo‘lim<select name="category" required><option value="atirlar">Atirlar</option><option value="body-fragrance">Tana parvarishi</option><option value="deodorants">Dezodorant</option><option value="perfume-oils">Parfyum moylari</option><option value="home-fragrance">Uy aromati</option><option value="bath-shower">Dush &amp; vanna</option><option value="accessories">Aksessuarlar</option></select><button class="admin-category-trigger" type="button" aria-haspopup="listbox" aria-expanded="false"><span>Atirlar</span><b aria-hidden="true">⌄</b></button><div class="admin-category-menu" role="listbox" hidden></div></label>
+        <label class="admin-gender-picker">Jins<select name="gender" required><option value="unisex">Uniseks</option><option value="erkaklar">Erkaklar</option><option value="ayollar">Ayollar</option></select><button class="admin-gender-trigger" type="button" aria-haspopup="listbox" aria-expanded="false"><span>Uniseks</span><b aria-hidden="true">⌄</b></button><div class="admin-gender-menu" role="listbox" hidden></div></label>
         <label>Hid oilasi<select name="family"><option value="amber">Amberli</option><option value="woody">Yog‘ochli</option><option value="floral">Gulli</option></select></label>
       </div>
       <label>Qisqa tavsif<textarea name="notes" rows="3" required placeholder="Asosiy notalar..."></textarea></label>
@@ -383,6 +413,7 @@
       <div class="admin-form-actions"><button class="outline-button" type="button" data-close-product-modal>Bekor qilish</button><button class="button-gold" type="submit">Saqlash</button></div>
     </form>
   </div>
+  <script src="supabase-config.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>

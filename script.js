@@ -8,6 +8,13 @@ document.querySelector('.desktop-preview-button')?.addEventListener('click', () 
   const desktopWindow = window.open(`${window.location.pathname}#home`, 'noxar-desktop-preview', 'width=1440,height=900,resizable=yes,scrollbars=yes');
   if (desktopWindow) desktopWindow.focus();
 });
+document.querySelector('.mobile-location')?.addEventListener('click', () => {
+  const address = 'Bekbaraka bozori, 12-qator, 2-blok, 472-magazin yonida';
+  const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=Bekbaraka+bozori+12-qator+2-blok+472-magazin';
+  const message = `Assalomu alaykum. NOXAR PARFUM do‘konimiz manzili:\n${address}\n\nXaritada ko‘rish: ${mapsUrl}`;
+  const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(mapsUrl)}&text=${encodeURIComponent(message)}`;
+  window.open(telegramUrl, '_blank', 'noopener,noreferrer');
+});
 let cartItems = JSON.parse(localStorage.getItem('noxar-cart') || '[]');
 let wishlistItems = JSON.parse(localStorage.getItem('noxar-wishlist') || '[]');
 let appliedPromo = JSON.parse(localStorage.getItem('noxar-promo') || 'null');
@@ -31,7 +38,7 @@ const demoProducts = [
   ,{ id: 'bath-set', name: 'Silk Bath Ritual', brand: 'NOXAR CARE', price: '390 000 so‘m', amount: 390000, notes: 'Lavanda · Sut · Oq mushk', categories: ['bath-shower', 'ayollar'], family: 'floral', volume: 'set', rating: 4.7, popularity: 55, art: 'rose-art', badge: 'Set', top: 'Lavanda', heart: 'Sut', base: 'Oq mushk', description: 'Dush va vanna uchun mayin hidli, kundalik parvarish to‘plami.', usage: 'Mahsulotlarni dush yoki vanna paytida ko‘rsatmasiga muvofiq ishlating.', features: ['3 mahsulot', 'Ayollar', 'Parvarish to‘plami'] }
   ,{ id: 'atomizer', name: 'Travel Perfume Atomizer', brand: 'NOXAR ACCESSORIES', price: '95 000 so‘m', amount: 95000, notes: 'Metall korpus · 8 ml · Qayta to‘ldiriladi', categories: ['accessories', 'unisex'], family: 'woody', volume: '8', rating: 4.5, popularity: 48, art: 'cream-art', badge: '', top: 'Metall', heart: '8 ml', base: 'Qayta to‘ldiriladi', description: 'Sevimli atiringizni o‘zingiz bilan olib yurish uchun ixcham atomizer.', usage: 'Flakonni pastki klapan orqali ehtiyotkorlik bilan to‘ldiring.', features: ['8 ml', 'Uniseks', 'Qayta to‘ldiriladi'] }
 ];
-const products = [];
+let products = demoProducts;
 const stockLevels = { obsidian: 3, santal: 8, eclat: 0, noir: 2, velours: 6, ritual: 4, mist: 12, serum: 7, lipstick: 15, shampoo: 10, 'beauty-set': 5 };
 let compareItems = JSON.parse(localStorage.getItem('noxar-compare') || '[]');
 
@@ -104,7 +111,7 @@ function getProductDepartment(product) {
 products.forEach((product) => { product.department = getProductDepartment(product); });
 adminProductsList.forEach((product) => { product.department = getProductDepartment(product); });
 const deletedProductIds = new Set(getDeletedProductIds());
-const allProducts = [...products, ...adminProductsList].filter((product) => !deletedProductIds.has(product.id));
+let allProducts = [...products, ...adminProductsList].filter((product) => !deletedProductIds.has(product.id));
 const activeProductIds = new Set(allProducts.map((product) => product.id));
 cartItems = cartItems.filter((item) => activeProductIds.has(item.id));
 wishlistItems = wishlistItems.filter((id) => activeProductIds.has(id));
@@ -114,6 +121,55 @@ localStorage.setItem('noxar-cart', JSON.stringify(cartItems));
 localStorage.setItem('noxar-wishlist', JSON.stringify(wishlistItems));
 localStorage.setItem('noxar-compare', JSON.stringify(compareItems));
 localStorage.setItem('noxar-recent', JSON.stringify(recentlyViewed));
+
+function formatRemoteProduct(remoteProduct) {
+  const amount = Number(remoteProduct.price || 0);
+  const gender = remoteProduct.gender || 'unisex';
+  const department = remoteProduct.category || 'atirlar';
+  const notes = remoteProduct.description || 'Mahsulot haqida ma’lumot mavjud emas.';
+  return {
+    id: remoteProduct.id,
+    name: remoteProduct.name,
+    brand: remoteProduct.brand || 'NOXAR',
+    image: remoteProduct.image || '',
+    video: '',
+    price: formatPrice(amount),
+    amount,
+    notes,
+    categories: [department, gender],
+    department,
+    gender,
+    family: 'amber',
+    volume: '50',
+    rating: 0,
+    popularity: 0,
+    art: 'black-art',
+    badge: '',
+    top: notes.split('·')[0] || 'Note',
+    heart: notes.split('·')[1] || 'Heart',
+    base: notes.split('·')[2] || 'Base',
+    description: notes,
+    usage: 'Bilak, bo‘yin va quloq orqasiga 2–3 marta seping.',
+    stock: Number(remoteProduct.stock || 0),
+    features: [gender === 'erkaklar' ? 'Erkaklar' : gender === 'ayollar' ? 'Ayollar' : 'Uniseks', `Stok: ${Number(remoteProduct.stock || 0)}`]
+  };
+}
+
+async function loadSupabaseProducts() {
+  if (!window.noxarSupabase) return;
+  try {
+    const { data } = await noxarSupabase.from('products').select('*').order('created_at', { ascending: false });
+    const remoteProducts = (data || []).map(formatRemoteProduct);
+    if (!remoteProducts.length) return;
+    products = remoteProducts;
+    allProducts = [...products, ...adminProductsList].filter((product) => !deletedProductIds.has(product.id));
+    allProducts.forEach((product) => localStorage.setItem(`noxar-product-${product.id}`, JSON.stringify(product)));
+    renderCatalog();
+    renderSearchResults(document.querySelector('.search-panel input')?.value || '');
+  } catch (error) {
+    console.error('Supabase mahsulotlarini yuklashda xatolik:', error);
+  }
+}
 
 function showToast(message) {
   toast.textContent = message;
@@ -147,6 +203,13 @@ function bottleMarkup(product) {
 }
 
 function productMediaMarkup(product, context = 'card') {
+  if (context === 'card') {
+    const media = [];
+    if (product.image) media.push(`<img class="catalog-media-frame product-media-image" src="${product.image}" alt="${product.name}" loading="lazy">`);
+    if (product.video) media.push(`<video class="catalog-media-frame product-media-video" src="${product.video}" controls preload="metadata"></video>`);
+    if (!media.length) media.push(`<div class="catalog-media-frame catalog-media-fallback">${bottleMarkup(product)}</div>`);
+    return `<div class="catalog-media-viewport"><div class="catalog-media-track" data-media-index="0">${media.join('')}</div>${media.length > 1 ? `<div class="catalog-media-dots" aria-hidden="true">${media.map((_, index) => `<i class="${index === 0 ? 'active' : ''}"></i>`).join('')}</div><span class="catalog-media-hint">← suring →</span>` : ''}</div>`;
+  }
   if (product.image) {
     return `<img class="product-media-image product-media-${context}" src="${product.image}" alt="${product.name}" loading="lazy">`;
   }
@@ -166,7 +229,7 @@ function renderRecentlyViewed() {
     <article class="recent-card" data-recent-id="${product.id}">
       <div class="recent-art ${product.art}"><div class="mini-bottle ${product.art === 'cream-art' ? 'light' : ''} ${product.art === 'rose-art' ? 'rose' : ''}"><b>N</b></div></div>
       <div><p class="catalog-brand">${product.brand}</p><h3>${product.name}</h3><strong>${product.price}</strong></div>
-      <button class="recent-add" type="button" data-recent-add="${product.name}">Savatga <span>+</span></button>
+      <button class="recent-add" type="button" data-recent-add="${product.name}">Ko‘rish <span>↗</span></button>
     </article>
   `).join('');
 }
@@ -233,7 +296,7 @@ function updateWishlist() {
   const container = document.querySelector('.wishlist-items');
   container.innerHTML = wishlistItems.length ? wishlistItems.map((id) => {
     const item = products.find((product) => product.id === id);
-    return `<article class="wishlist-item" data-wishlist-id="${item.id}"><div class="wishlist-art ${item.art}"><b>N</b></div><div><h3>${item.name}</h3><p>${item.brand} · ${item.price}</p><button class="wishlist-cart-add" type="button" data-wishlist-action="cart">Savatga qo‘shish <span>+</span></button></div><button class="wishlist-remove" type="button" data-wishlist-action="remove" aria-label="${item.name}ni olib tashlash">×</button></article>`;
+    return `<article class="wishlist-item" data-wishlist-id="${item.id}"><div class="wishlist-art ${item.art}"><b>N</b></div><div><h3>${item.name}</h3><p>${item.brand} · ${item.price}</p><button class="wishlist-view-product" type="button" data-wishlist-action="view">Mahsulotni ko‘rish <span>↗</span></button></div><button class="wishlist-remove" type="button" data-wishlist-action="remove" aria-label="${item.name}ni o‘chirish">×</button></article>`;
   }).join('') : '<div class="empty-cart"><span>♡</span><h3>Sevimlilar hali bo‘sh</h3><p>Yoqqan hidlaringizni yurak tugmasi orqali shu yerda saqlang.</p><button class="text-link continue-wishlist" type="button">Katalogni ko‘rish <span>↗</span></button></div>';
   saveWishlist();
 }
@@ -254,8 +317,9 @@ function toggleWishlist(productId) {
 
 function updateCart() {
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  cartCount.textContent = totalQuantity;
   const itemsContainer = document.querySelector('.cart-items');
+  if (!cartCount || !itemsContainer) return;
+  cartCount.textContent = totalQuantity;
   itemsContainer.innerHTML = cartItems.length ? cartItems.map((item) => `
     <article class="cart-item" data-cart-id="${item.id}">
       <div class="cart-item-art ${item.art}"><b>N</b></div>
@@ -301,13 +365,13 @@ function openMarketRoute(route) {
   home.hidden = true;
   routeView.hidden = false;
   if (route === 'cart') {
-    routeView.innerHTML = `<div class="route-header"><button class="route-back" data-route-home>←</button><h1>Savat</h1></div><div class="mobile-cart-total route-total">${formatPrice(calculateCartTotals().total)}</div><div class="mobile-cart-items">${cartItems.length ? cartItems.map((item) => `<article class="mobile-cart-row"><span>${item.name} × ${item.quantity}</span><strong>${formatPrice(item.amount * item.quantity)}</strong></article>`).join('') : '<p class="mobile-empty">Savatingiz hozircha bo‘sh.</p>'}</div><button class="button button-gold route-checkout" data-route-checkout type="button">Buyurtma berish <span>↗</span></button>`;
+    routeView.innerHTML = `<div class="route-header"><button class="route-back" data-route-home>←</button><h1>Savat</h1></div><div class="mobile-cart-total route-total">${formatPrice(calculateCartTotals().total)}</div><div class="mobile-cart-items">${cartItems.length ? cartItems.map((item) => `<article class="mobile-cart-row" data-route-cart-id="${item.id}"><div><span>${item.name}</span><div class="quantity-control"><button type="button" data-route-cart-action="decrease" aria-label="Miqdorni kamaytirish">−</button><span>${item.quantity}</span><button type="button" data-route-cart-action="increase" aria-label="Miqdorni oshirish">+</button></div></div><strong>${formatPrice(item.amount * item.quantity)}</strong><button type="button" data-route-cart-action="remove" aria-label="${item.name}ni o‘chirish">×</button></article>`).join('') : '<p class="mobile-empty">Savatingiz hozircha bo‘sh.</p>'}</div><button class="button button-gold route-checkout" data-route-checkout type="button">Buyurtma berish <span>↗</span></button>`;
   } else if (route === 'quick') {
     routeView.innerHTML = '<div class="route-header"><button class="route-back" data-route-home>←</button><h1>Bo‘limlar</h1></div><div class="mobile-quick-grid"><button data-category-link="all">UMUMIY</button><button data-category-link="atirlar">Atirlar</button><button data-category-link="body-fragrance">Tana uchun hushbo‘y mahsulotlar</button><button data-category-link="deodorants">Dezodorantlar</button><button data-category-link="perfume-oils">Parfyumeriya moylari</button><button data-category-link="home-fragrance">Uy uchun hushbo‘y mahsulotlar</button><button data-category-link="bath-shower">Dush va vanna mahsulotlari</button><button data-category-link="accessories">Parfyumeriya aksessuarlari</button></div>';
   } else if (route === 'card') {
     routeView.innerHTML = '<div class="route-header"><button class="route-back" data-route-home>←</button><h1>Karta</h1></div><div class="mobile-benefits"><span>✦ Original mahsulot</span><span>↗ Tez yetkazib berish</span><span>↻ 14 kunlik qaytarish</span></div>';
   } else if (route === 'account') {
-    routeView.innerHTML = '<div class="route-header"><button class="route-back" data-route-home>←</button><h1>Profil</h1></div><div class="profile-route-card"><div class="profile-route-avatar">N</div><div><p class="eyebrow">NOXAR mijozi</p><h2>Mehmon foydalanuvchi</h2><p>Buyurtmalar va sevimli mahsulotlaringiz shu yerda.</p></div></div><div class="profile-route-actions"><button type="button">Buyurtmalarim <span>↗</span></button><button type="button">Sozlamalar <span>↗</span></button></div><button class="button button-gold route-profile" type="button">Kirish yoki ro‘yxatdan o‘tish <span>↗</span></button>';
+    routeView.innerHTML = '<div class="route-header"><button class="route-back" data-route-home>←</button><h1>Profil</h1></div><div class="profile-route-card"><div class="profile-route-avatar">N</div><div><p class="eyebrow">NOXAR mijozi</p><h2>Mehmon foydalanuvchi</h2><p>Buyurtmalar va sevimli mahsulotlaringiz shu yerda.</p></div></div><div class="profile-route-actions"><button type="button" data-route-profile-action="orders">Buyurtmalarim <span>↗</span></button><button type="button" data-route-profile-action="settings">Sozlamalar <span>↗</span></button></div><button class="button button-gold route-profile" type="button">Kirish yoki ro‘yxatdan o‘tish <span>↗</span></button>';
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -337,7 +401,7 @@ function renderCompare() {
       <div class="compare-art ${product.art}"><div class="mini-bottle ${product.art === 'cream-art' ? 'light' : ''} ${product.art === 'rose-art' ? 'rose' : ''}"><b>N</b></div></div>
       <h3>${product.name}</h3><p>${product.brand}</p>
       <dl><div><dt>Narx</dt><dd>${product.price}</dd></div><div><dt>Hid oilasi</dt><dd>${product.family}</dd></div><div><dt>Hajm</dt><dd>${product.volume} ml</dd></div><div><dt>Reyting</dt><dd>${product.rating} ★</dd></div><div><dt>Stok</dt><dd>${stockLevels[product.id] || 0} ta</dd></div></dl>
-      <button type="button" class="button button-gold compare-buy" data-compare-buy="${product.name}" ${stockLevels[product.id] === 0 ? 'disabled' : ''}>Savatga qo‘shish</button>
+      <button type="button" class="button button-gold compare-buy" data-compare-buy="${product.name}" ${stockLevels[product.id] === 0 ? 'disabled' : ''}>Ko‘rish</button>
     </article>
   `).join('');
 }
@@ -359,7 +423,10 @@ function toggleCompare(productId) {
 
 document.querySelector('.compare-grid')?.addEventListener('click', (event) => {
   const button = event.target.closest('[data-compare-buy]');
-  if (button) addToCart(button.dataset.compareBuy);
+  if (button) {
+    const product = allProducts.find((item) => item.name === button.dataset.compareBuy);
+    if (product) openProductPage(product);
+  }
 });
 document.querySelector('.clear-compare')?.addEventListener('click', () => {
   compareItems = [];
@@ -411,7 +478,7 @@ function renderCatalog(category = activeCategory) {
         <h3>${product.name}</h3>
         <p class="product-notes">${product.notes}</p>
         <div class="catalog-rating"><span>★ ${product.rating}</span><small>${product.reviewCount || Math.round(product.popularity * 1.7)} sharh</small></div>
-        <div class="catalog-card-footer"><div><del>${getProductDiscount(product) ? formatPrice(Math.round(product.amount / (1 - getProductDiscount(product) / 100))) : ''}</del><strong>${product.price}</strong></div><button class="catalog-add" data-product="${product.name}" ${(product.stock ?? stockLevels[product.id] ?? 5) === 0 ? 'disabled' : ''}>Savatga <span>+</span></button></div>
+        <div class="catalog-card-footer"><div><del>${getProductDiscount(product) ? formatPrice(Math.round(product.amount / (1 - getProductDiscount(product) / 100))) : ''}</del><strong>${product.price}</strong></div></div>
         <button class="compare-toggle ${compareItems.includes(product.id) ? 'active' : ''}" type="button" data-compare-id="${product.id}">${compareItems.includes(product.id) ? 'Taqqoslashdan olib tashlash' : 'Taqqoslashga qo‘shish'}</button>
       </div>
     </article>
@@ -423,6 +490,7 @@ function renderCatalog(category = activeCategory) {
 
 renderCatalog();
 applyActiveCampaign();
+loadSupabaseProducts();
 
 function renderSearchResults(query) {
   const normalizedQuery = query.trim().toLowerCase();
@@ -462,16 +530,24 @@ document.querySelectorAll('.add-cart').forEach((button) => {
       button.innerHTML = 'Savatga qo‘shish <span>+</span>';
     }, 1800);
   });
-  document.querySelector('.product-grid').addEventListener('click', (event) => {
-    if (event.target.closest('.add-cart')) return;
-    const card = event.target.closest('.product-card');
-    if (!card) return;
-    const product = allProducts.find((item) => card.dataset.name.toLowerCase().includes(item.name.replace('NO. ', 'No. ').toLowerCase()));
-    if (product) openProductPage(product);
+  document.querySelectorAll('.product-view').forEach((button) => {
+    button.addEventListener('click', () => {
+      const product = allProducts.find((item) => item.name === button.dataset.product);
+      if (product) openProductPage(product);
+    });
   });
+});
+document.querySelector('.product-grid').addEventListener('click', (event) => {
+  if (event.target.closest('.add-cart')) return;
+  const card = event.target.closest('.product-card');
+  if (!card) return;
+  const product = allProducts.find((item) => card.dataset.name.toLowerCase() === item.name.toLowerCase());
+  if (product) openProductPage(product);
 });
 
 document.querySelector('.catalog-grid').addEventListener('click', (event) => {
+  if (event.target.closest('.catalog-media-video')) return;
+  if (Date.now() < suppressCatalogClickUntil) return;
   const favoriteButton = event.target.closest('[data-favorite-id]');
   if (favoriteButton) {
     event.stopPropagation();
@@ -491,17 +567,47 @@ document.querySelector('.catalog-grid').addEventListener('click', (event) => {
   const card = event.target.closest('.catalog-card');
   if (card) openProductPage(allProducts.find((product) => product.name === card.dataset.name));
 });
+let mediaSwipeStart = null;
+let suppressCatalogClickUntil = 0;
+function showCatalogMedia(track, direction) {
+  const frames = track.querySelectorAll('.catalog-media-frame');
+  if (frames.length < 2) return;
+  const nextIndex = (Number(track.dataset.mediaIndex) + direction + frames.length) % frames.length;
+  track.dataset.mediaIndex = String(nextIndex);
+  track.style.transform = `translateX(-${nextIndex * 100}%)`;
+  track.parentElement.querySelectorAll('.catalog-media-dots i').forEach((dot, index) => dot.classList.toggle('active', index === nextIndex));
+  track.querySelectorAll('video').forEach((video, index) => {
+    if (index !== nextIndex) video.pause();
+  });
+}
+document.querySelector('.catalog-grid').addEventListener('pointerdown', (event) => {
+  const track = event.target.closest('.catalog-media-track');
+  if (track) mediaSwipeStart = { track, x: event.clientX, y: event.clientY };
+});
+document.querySelector('.catalog-grid').addEventListener('pointerup', (event) => {
+  if (!mediaSwipeStart) return;
+  const { track, x, y } = mediaSwipeStart;
+  const deltaX = event.clientX - x;
+  const deltaY = event.clientY - y;
+  mediaSwipeStart = null;
+  if (Math.abs(deltaX) < 35 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+  event.preventDefault();
+  showCatalogMedia(track, deltaX < 0 ? 1 : -1);
+  suppressCatalogClickUntil = Date.now() + 450;
+});
 document.querySelectorAll('[data-quick-category]').forEach((button) => button.addEventListener('click', () => {
   const category = button.dataset.quickCategory;
   if (!['all', 'atirlar', 'body-fragrance', 'deodorants', 'perfume-oils', 'home-fragrance', 'bath-shower', 'accessories'].includes(category)) return;
   const categorySelect = document.querySelector('.category-select');
   categorySelect.value = category;
+  if (typeof syncCategoryPicker === 'function') syncCategoryPicker();
   renderCatalog(category); document.querySelector('#catalog').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }));
 document.querySelectorAll('[data-department]').forEach((button) => button.addEventListener('click', () => {
   const department = button.dataset.department;
   document.querySelectorAll('[data-department]').forEach((item) => item.classList.toggle('active', item === button));
   document.querySelector('.category-select').value = 'all';
+  if (typeof syncCategoryPicker === 'function') syncCategoryPicker();
   renderCatalog(department);
 }));
 document.querySelectorAll('[data-mobile-nav]').forEach((button) => button.addEventListener('click', () => {
@@ -513,6 +619,19 @@ document.querySelectorAll('[data-mobile-nav]').forEach((button) => button.addEve
 document.querySelector('#market-route').addEventListener('click', (event) => {
   if (event.target.closest('[data-route-home]')) openMarketRoute('home');
   if (event.target.closest('[data-route-checkout]')) document.querySelector('.checkout-demo')?.click();
+  const routeCartAction = event.target.closest('[data-route-cart-action]')?.dataset.routeCartAction;
+  const routeCartItem = event.target.closest('[data-route-cart-id]');
+  if (routeCartAction && routeCartItem) {
+    const item = cartItems.find((entry) => entry.id === routeCartItem.dataset.routeCartId);
+    if (item) {
+      if (routeCartAction === 'increase') item.quantity += 1;
+      if (routeCartAction === 'decrease') item.quantity -= 1;
+      if (routeCartAction === 'remove' || item.quantity <= 0) cartItems = cartItems.filter((entry) => entry.id !== item.id);
+      updateCart();
+      openMarketRoute('cart');
+    }
+    return;
+  }
   const category = event.target.closest('[data-category-link]')?.dataset.categoryLink;
   if (category) {
     document.querySelector('.category-select').value = ['ayollar', 'erkaklar', 'unisex'].includes(category) ? category : 'all';
@@ -521,7 +640,9 @@ document.querySelector('#market-route').addEventListener('click', (event) => {
     openMarketRoute('home');
     document.querySelector('#catalog').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  if (event.target.closest('.route-profile')) document.querySelector('.account-button')?.click();
+  if (event.target.closest('.route-profile') || event.target.closest('[data-route-profile-action]')) {
+    document.querySelector('.account-button')?.click();
+  }
 });
 
 const productModal = document.querySelector('.product-modal');
@@ -530,7 +651,12 @@ let selectedReviewRating = 0;
 function openProductPage(product) {
   if (!product) return;
   localStorage.setItem(`noxar-product-${product.id}`, JSON.stringify(product));
-  window.open(`product.html?id=${encodeURIComponent(product.id)}`, '_blank', 'noopener');
+  const productUrl = `product.html?id=${encodeURIComponent(product.id)}`;
+  if (window.matchMedia('(max-width: 600px)').matches) {
+    window.location.href = productUrl;
+    return;
+  }
+  window.open(productUrl, '_blank', 'noopener');
 }
 const defaultReviews = {
   obsidian: [{ name: 'Sanjar A.', rating: 5, text: 'Sirli va uzoq saqlanadigan hid.' }],
@@ -614,11 +740,6 @@ function closeProductModal() {
 }
 productModal.querySelectorAll('[data-close-modal]').forEach((element) => element.addEventListener('click', closeProductModal));
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && productModal.classList.contains('open')) closeProductModal(); });
-productModal.querySelector('.modal-add').addEventListener('click', () => {
-  if (!selectedProduct) return;
-  addToCart(selectedProduct.name);
-  closeProductModal();
-});
 productModal.querySelector('.modal-favorite').addEventListener('click', () => {
   if (selectedProduct) toggleWishlist(selectedProduct.id);
 });
@@ -674,7 +795,8 @@ document.querySelector('.recent-grid').addEventListener('click', (event) => {
   const addButton = event.target.closest('[data-recent-add]');
   if (addButton) {
     event.stopPropagation();
-    addToCart(addButton.dataset.recentAdd);
+    const product = allProducts.find((item) => item.name === addButton.dataset.recentAdd);
+    if (product) openProductPage(product);
     return;
   }
   const card = event.target.closest('[data-recent-id]');
@@ -709,7 +831,7 @@ wishlistDrawer.querySelector('.wishlist-items').addEventListener('click', (event
   }
   const productId = itemElement.dataset.wishlistId;
   if (action === 'remove') toggleWishlist(productId);
-  if (action === 'cart') addToCart(allProducts.find((product) => product.id === productId).name);
+  if (action === 'view') openProductPage(allProducts.find((product) => product.id === productId));
 });
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && wishlistDrawer.classList.contains('open')) closeWishlist(); });
 updateWishlist();
@@ -796,7 +918,7 @@ function closeCart() {
   cartDrawer.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('cart-open');
 }
-document.querySelector('.cart-button').addEventListener('click', openCart);
+document.querySelector('.cart-button')?.addEventListener('click', openCart);
 cartDrawer.querySelectorAll('[data-close-cart]').forEach((element) => element.addEventListener('click', closeCart));
 checkoutModal.querySelectorAll('[data-close-checkout]').forEach((element) => element.addEventListener('click', closeCheckout));
 cartDrawer.querySelector('.cart-items').addEventListener('click', (event) => {
@@ -813,7 +935,7 @@ cartDrawer.querySelector('.cart-items').addEventListener('click', (event) => {
 cartDrawer.querySelector('.cart-items').addEventListener('click', (event) => {
   if (event.target.closest('.continue-shopping')) closeCart();
 });
-cartDrawer.querySelector('.checkout-demo').addEventListener('click', openCheckout);
+cartDrawer.querySelector('.checkout-demo')?.addEventListener('click', openCheckout);
 cartDrawer.querySelector('.promo-form').addEventListener('submit', (event) => {
   event.preventDefault();
   const input = event.currentTarget.querySelector('input');
@@ -847,7 +969,7 @@ cartDrawer.querySelector('.promo-form').addEventListener('submit', (event) => {
   status.textContent = `${code} qo‘llandi: ${promo.type === 'fixed' ? `${Number(promo.value).toLocaleString('uz-UZ')} so‘m` : `${promo.value}%`} chegirma.`;
   status.className = 'promo-status success';
 });
-checkoutForm.addEventListener('submit', (event) => {
+checkoutForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const formData = new FormData(checkoutForm);
@@ -865,8 +987,7 @@ checkoutForm.addEventListener('submit', (event) => {
   const orderNumber = `NOX-${Date.now().toString().slice(-6)}`;
   const orders = getOrders();
   const { subtotal, discount, shipping, total } = calculateCartTotals();
-
-  orders.unshift({
+  const order = {
     orderNumber,
     customer: fullName,
     phone,
@@ -880,7 +1001,43 @@ checkoutForm.addEventListener('submit', (event) => {
     status: 'Qabul qilindi',
     items: cartItems.map((item) => ({ ...item })),
     createdAt: new Date().toISOString()
-  });
+  };
+
+  if (window.noxarSupabase) {
+    try {
+      const customerResponse = await noxarSupabase.from('customers').insert({
+        name: fullName,
+        phone,
+        address
+      });
+      const customer = Array.isArray(customerResponse.data) ? customerResponse.data[0] : customerResponse.data;
+      const orderResponse = await noxarSupabase.from('orders').insert({
+        customer_id: customer?.id || null,
+        customer_name: fullName,
+        customer_phone: phone,
+        customer_address: address,
+        total,
+        payment_method: paymentMethod,
+        delivery_method: shippingMethod,
+        status: 'pending'
+      });
+      const savedOrder = Array.isArray(orderResponse.data) ? orderResponse.data[0] : orderResponse.data;
+      if (!savedOrder?.id) throw new Error('Buyurtma ID qaytmadi');
+      await noxarSupabase.from('order_items').insert(cartItems.map((item) => ({
+        order_id: savedOrder.id,
+        product_id: item.id,
+        product_name: item.name,
+        quantity: item.quantity,
+        unit_price: item.amount
+      })));
+    } catch (error) {
+      console.error('Checkout save failed:', error);
+      showToast('Buyurtma bazaga saqlanmadi. Qayta urinib ko‘ring.');
+      return;
+    }
+  }
+
+  orders.unshift(order);
 
   saveOrders(orders);
   checkoutOrderNumber.textContent = orderNumber;
@@ -981,6 +1138,12 @@ document.querySelector('.logout-button').addEventListener('click', () => {
     localStorage.setItem('noxar-account', JSON.stringify(user));
   }
   updateAccountDashboard();
+});
+document.querySelectorAll('.toggle-setting').forEach((button) => {
+  button.addEventListener('click', () => {
+    const enabled = button.classList.toggle('active');
+    button.textContent = enabled ? 'Yoniq' : 'O‘chiq';
+  });
 });
 
 const accountTabs = document.querySelectorAll('.account-tab');
@@ -1120,6 +1283,38 @@ document.querySelector('.category-select').addEventListener('change', (event) =>
   document.querySelectorAll('[data-department]').forEach((item) => item.classList.toggle('active', item.dataset.department === 'all' && event.target.value === 'all'));
   renderCatalog(event.target.value);
 });
+const categoryPicker = document.querySelector('.category-picker');
+const categorySelect = document.querySelector('.category-select');
+const categoryTrigger = document.querySelector('.category-select-trigger');
+const categoryMenu = document.querySelector('.category-select-menu');
+const syncCategoryPicker = () => {
+  const option = categoryMenu.querySelector(`[data-value="${categorySelect.value}"]`) || categoryMenu.querySelector('[data-value="all"]');
+  categoryTrigger.querySelector('span').textContent = option.querySelector('.category-option-label').textContent;
+  categoryMenu.querySelectorAll('[role="option"]').forEach((item) => item.setAttribute('aria-selected', item === option ? 'true' : 'false'));
+};
+categoryTrigger.addEventListener('click', () => {
+  const isOpen = categoryPicker.classList.toggle('open');
+  categoryTrigger.setAttribute('aria-expanded', String(isOpen));
+  categoryMenu.hidden = !isOpen;
+});
+categoryMenu.addEventListener('click', (event) => {
+  const option = event.target.closest('[data-value]');
+  if (!option) return;
+  categorySelect.value = option.dataset.value;
+  categorySelect.dispatchEvent(new Event('change', { bubbles: true }));
+  syncCategoryPicker();
+  categoryPicker.classList.remove('open');
+  categoryTrigger.setAttribute('aria-expanded', 'false');
+  categoryMenu.hidden = true;
+});
+document.addEventListener('click', (event) => {
+  if (!categoryPicker.contains(event.target)) {
+    categoryPicker.classList.remove('open');
+    categoryTrigger.setAttribute('aria-expanded', 'false');
+    categoryMenu.hidden = true;
+  }
+});
+syncCategoryPicker();
 document.querySelectorAll('[data-category-link]').forEach((button) => button.addEventListener('click', () => {
   document.querySelector('.category-select').value = button.dataset.categoryLink;
   renderCatalog(button.dataset.categoryLink);
