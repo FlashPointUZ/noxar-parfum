@@ -68,3 +68,19 @@ create policy "Admins can update reservations"
 on public.reservations for update to authenticated
 using (public.noxar_is_admin())
 with check (public.noxar_is_admin());
+
+-- Buyurtmalar (Orders) boshqaruvi
+grant select, update, delete on public.orders to authenticated;
+drop policy if exists "Admins can manage orders" on public.orders;
+create policy "Admins can manage orders"
+on public.orders for all to authenticated
+using (public.noxar_is_admin())
+with check (public.noxar_is_admin());
+
+-- Sharhlar (Reviews) moderatsiyasi va o'chirish
+grant select, update, delete on public.reviews to authenticated;
+drop policy if exists "Admins can manage reviews" on public.reviews;
+create policy "Admins can manage reviews"
+on public.reviews for all to authenticated
+using (public.noxar_is_admin())
+with check (public.noxar_is_admin());

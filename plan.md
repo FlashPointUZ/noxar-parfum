@@ -178,3 +178,22 @@ Ushbu reja **NOXAR PARFUM** loyihasini **Nutlope/hallmark** anti-AI-slop dizayn 
   - Matn hech qachon boshqa qismlarga tegib ketmaydi va chiroyli markazlashgan holda ko‘rinadi.
 - [x] **11.4. Build va Sinov**:
   - `npm run build` to‘liq xatolarsiz 0 kodi bilan yakunlandi, barcha 5 ta statik sahifa muvaffaqiyatli hosil qilindi.
+
+---
+
+## ⚡ 12-BOSQICH: Admin Panelda Barcha Backend Ma'lumotlarini Boshqarish & 100% Moslashuvchanlik
+
+- [x] **12.1. Backend Ma'lumotlarini To‘liq Boshqarish (Full CRUD)**:
+  - **Mahsulotlar (`products`)**: Ko‘rish, qidirish, kategoriya bo‘yicha filtrlash, yangi mahsulot qo‘shish (rasm yuklash / URL), mavjud mahsulotni **tahrirlash (Edit Modal)**, faollik holatini bitta tugma bilan almashtirish (Faol/Nofaol), tezkor stok boshqaruvi (+/-) va o‘chirish (Supabase delete).
+  - **Buyurtmalar (`orders`)**: Barcha buyurtmalarni ko‘rish, status bo‘yicha filtrlash (`pending`, `processing`, `delivered`, `cancelled`), qidirish, **Batafsil ko‘rish modali (Order Details)** (mijoz ismi, telefoni, manzili, buyurtma qilingan barcha tovarlar ro‘yxati, donasi narxi, miqdori va jami summasi), holatni yangilash va o‘chirish.
+  - **Sharhlar (`reviews`)**: Filtrlar (`all`, `pending`, `approved`, `rejected`), saytda ko‘rsatish uchun tasdiqlash, rad etish va noo‘rin sharhlarni bazadan butunlay o‘chirish.
+  - **Mijozlar (`customers`)**: Buyurtmalar bazasidan barcha mijozlarni avtomatik guruhlash, ularning telefon raqami, manzili, jami buyurtmalari soni va umumiy xaridlari summasini (LTV) ko‘rsatish.
+  - **Ombor (`inventory`)**: Kam qolgan tovarlar monitoringi va stokni tezkor oshirish.
+  - **Sayt Matnlari (CMS)**: 6 ta asosiy seksiya matnlari, e'lonlar, hero banner rasmlari va kontaktlarni real vaqtda `site_content` jadvaliga saqlash.
+- [x] **12.2. Barcha Ekranlar (320px dan 1920px gacha) uchun Dual Responsive Dizayn**:
+  - Mobil ekranlarda (`block md:hidden`): Barcha jadvallar noqulay gorizontal scrollsiz ixcham, zamonaviy **Mobil Kartalar (Card Views)** formatida chiqadi (har bir mahsulot, buyurtma, sharh va mijoz qulay barmoq bilan boshqariladigan karta shaklida).
+  - Desktop ekranlarda (`hidden md:block`): Yuqori zichlikdagi klassik ma'muriy jadvallar ko‘rsatiladi.
+  - Modallar (`showAddModal`, `editingProduct`, `selectedOrder`): Har biri kichik ekranlarda (320px) toshib ketmaydigan qulay `max-h-[90vh] overflow-y-auto` va `p-5 sm:p-7` konteyneriga keltirildi.
+  - Header va Tab navigatsiyasi: Gorizontal `no-scrollbar` bilan barcha 7 ta bo‘lim ixcham va tartibli almashinadi.
+- [x] **12.3. Build va Eksport Sinovi**:
+  - `npm run build` to‘liq xatolarsiz 0 kodi bilan o‘tdi, barcha 5 ta statik sahifa muvaffaqiyatli hosil qilindi.
