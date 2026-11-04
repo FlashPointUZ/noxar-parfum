@@ -14,7 +14,7 @@ export const CatalogSection: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('default');
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Supabase dan yangi mahsulotlarni olishga urinish
+  // Supabase dan real mahsulotlarni tortish
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -26,7 +26,7 @@ export const CatalogSection: React.FC = () => {
 
         if (data && data.length > 0 && !error) {
           const remoteProducts: Product[] = data.map((item: any) => ({
-            id: item.id,
+            id: String(item.id),
             name: item.name,
             brand: item.brand || 'NOXAR',
             price: `${Number(item.price || 0).toLocaleString('uz-UZ')} so'm`,
@@ -49,6 +49,7 @@ export const CatalogSection: React.FC = () => {
             features: ['Eau de Parfum', item.gender || 'Uniseks'],
             stock: Number(item.stock || 5),
             image: item.image,
+            active: item.active !== false,
           }));
           setProducts(remoteProducts);
         }
@@ -61,10 +62,15 @@ export const CatalogSection: React.FC = () => {
     fetchProducts();
   }, []);
 
-  // Filtrlash va saralash logikasi
+  // Filtrlash va saralash
   const filteredProducts = products.filter((p) => {
-    const matchesDept = selectedDept === 'all' || p.department === selectedDept || p.categories.includes(selectedDept);
-    const matchesGender = selectedGender === 'all' || p.gender === selectedGender || p.categories.includes(selectedGender);
+    const matchesDept =
+      selectedDept === 'all' ||
+      p.department === selectedDept ||
+      p.categories.includes(selectedDept) ||
+      (selectedDept === 'gift-sets' && p.categories.includes('sovga'));
+    const matchesGender =
+      selectedGender === 'all' || p.gender === selectedGender || p.categories.includes(selectedGender);
     return matchesDept && matchesGender;
   });
 
@@ -75,6 +81,7 @@ export const CatalogSection: React.FC = () => {
     return 0;
   });
 
+  // To'liq kengaytirilgan kategoriyalar
   const departments = [
     { id: 'all', label: 'Barchasi', icon: '✦' },
     { id: 'atirlar', label: 'Atirlar', icon: '♢' },
@@ -82,6 +89,9 @@ export const CatalogSection: React.FC = () => {
     { id: 'deodorants', label: 'Dezodorant', icon: '◉' },
     { id: 'perfume-oils', label: 'Parfyum moylari', icon: '◌' },
     { id: 'home-fragrance', label: 'Uy aromati', icon: '⌂' },
+    { id: 'bath-shower', label: 'Dush & vanna', icon: '≋' },
+    { id: 'accessories', label: 'Aksessuarlar', icon: '◇' },
+    { id: 'gift-sets', label: 'Sovg‘a to‘plamlari', icon: '🎁' },
   ];
 
   return (

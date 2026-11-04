@@ -6,11 +6,13 @@ import { useUIStore } from '@/store/useUIStore';
 import { supabase } from '@/lib/supabase/client';
 import { formatPrice } from '@/lib/utils';
 import { Order } from '@/types/database';
-import { X, User, Mail, Lock, Phone, LogOut, Package, ShieldAlert, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { X, User, Mail, Lock, Phone, LogOut, Package, ShieldAlert, Sparkles, ShieldCheck } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
-  const { user, loading, error, signUp, signIn, signOut, clearError, checkSession } = useAuthStore();
+  const { user, isAdmin, loading, error, signUp, signIn, signOut, clearError, checkSession } = useAuthStore();
   const { isAuthOpen, setAuthOpen } = useUIStore();
+  const router = useRouter();
 
   const [tab, setTab] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -18,9 +20,8 @@ export const AuthModal: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('+998 ');
 
-  // Botlarga qarshi Honeypot va vaqt o'lchagich
+  // Botlarga qarshi Honeypot
   const [honeypot, setHoneypot] = useState('');
-  const [formStartTime, setFormStartTime] = useState<number>(Date.now());
 
   // Foydalanuvchining o'z buyurtmalari
   const [userOrders, setUserOrders] = useState<Order[]>([]);
@@ -32,28 +33,25 @@ export const AuthModal: React.FC = () => {
 
   useEffect(() => {
     if (isAuthOpen) {
-      setFormStartTime(Date.now());
       clearError();
     }
   }, [isAuthOpen, clearError]);
 
-  // Foydalanuvchi tizimga kirganda uning buyurtmalarini Supabase dan tortish
+  // Buyurtmalarni yuklash
   useEffect(() => {
     async function loadUserOrders() {
       if (!user) return;
       setLoadingOrders(true);
       try {
-        // Avval Supabase dan
         const { data } = await supabase
           .from('orders')
           .select('*')
-          .or(`customer_name.eq.${user.fullName},phone.eq.${user.phone}`)
+          .or(`customer_name.eq.${user.fullName},customer_phone.eq.${user.phone}`)
           .order('created_at', { ascending: false });
 
         if (data && data.length > 0) {
           setUserOrders(data);
         } else {
-          // Mahalliy zaxira
           const local = JSON.parse(localStorage.getItem('noxar-orders') || '[]');
           setUserOrders(local);
         }
@@ -74,10 +72,15 @@ export const AuthModal: React.FC = () => {
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await signIn(email, password);
-    if (success) {
+    const result = await signIn(email, password);
+    if (result.success) {
       setEmail('');
       setPassword('');
+      // Agar admin bo'lsa, avtomatik ravishda admin panelga o'tadi!
+      if (result.isAdmin) {
+        setAuthOpen(false);
+        router.push('/admin');
+      }
     }
   };
 
@@ -113,12 +116,42 @@ export const AuthModal: React.FC = () => {
               <div className="w-12 h-12 rounded-full border border-gold-primary/40 bg-gold-primary/10 flex items-center justify-center font-serif text-lg text-gold-primary font-bold">
                 {user.fullName ? user.fullName[0].toUpperCase() : 'N'}
               </div>
-              <div>
-                <span className="text-[10px] uppercase tracking-wider text-gold-primary block">Shaxsiy Kabinet</span>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase tracking-wider text-gold-primary block">Shaxsiy Kabinet</span>
+                  {isAdmin && (
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-gold-primary text-black">
+                      Admin
+                    </span>
+                  )}
+                </div>
                 <h3 className="font-serif text-xl text-text-main">{user.fullName || 'Mijoz'}</h3>
                 <p className="text-xs text-text-muted">{user.email}</p>
               </div>
             </div>
+
+            {/* Admin bo'lsa maxsus havola */}
+            {isAdmin && (
+              <div className="p-4 rounded-xl bg-gold-primary/10 border border-gold-primary/30 flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-semibold text-text-main flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-gold-primary" />
+                    <span>Tizim Ma’muri</span>
+                  </h4>
+                  <p className="text-[11px] text-text-muted">Boshqaruv paneliga to‘liq ruxsat mavjud.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthOpen(false);
+                    router.push('/admin');
+                  }}
+                  className="px-3.5 py-1.5 rounded-lg bg-gold-primary text-black text-xs font-semibold uppercase tracking-wider hover:bg-gold-light transition-colors"
+                >
+                  Boshqaruv ↗
+                </button>
+              </div>
+            )}
 
             {/* Buyurtmalar Tarixi */}
             <div className="border-t border-border-hairline pt-4">
@@ -148,16 +181,16 @@ export const AuthModal: React.FC = () => {
                     >
                       <div>
                         <span className="font-mono text-gold-primary text-[11px] font-semibold block">
-                          {order.order_number}
+                          {order.order_number || `BUY-${order.id?.slice(0, 8)}`}
                         </span>
                         <span className="text-[10px] text-text-muted block mt-0.5">
-                          {order.items?.length || 1} ta mahsulot
+                          {order.delivery_method || order.shipping_method || 'Standart'}
                         </span>
                       </div>
                       <div className="text-right">
                         <span className="font-semibold text-text-main block">{formatPrice(order.total)}</span>
                         <span className="text-[10px] text-gold-light uppercase font-medium">
-                          {order.order_status || 'Jarayonda'}
+                          {order.status || order.order_status || 'Jarayonda'}
                         </span>
                       </div>
                     </div>
@@ -263,7 +296,6 @@ export const AuthModal: React.FC = () => {
             ) : (
               /* Ro'yxatdan O'tish Formasi */
               <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
-                {/* BOT HONEYPOT: Inson ko'rmaydi, botlar esa to'ldiradi */}
                 <div style={{ display: 'none' }} aria-hidden="true">
                   <input
                     type="text"

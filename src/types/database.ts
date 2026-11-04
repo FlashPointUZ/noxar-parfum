@@ -5,7 +5,9 @@ export type Department =
   | 'perfume-oils'
   | 'home-fragrance'
   | 'bath-shower'
-  | 'accessories';
+  | 'accessories'
+  | 'gift-sets'
+  | string;
 
 export type Gender = 'erkaklar' | 'ayollar' | 'unisex';
 
@@ -19,7 +21,7 @@ export interface Product {
   categories: string[];
   department: Department;
   gender?: Gender;
-  family: 'amber' | 'woody' | 'floral' | 'fresh';
+  family: 'amber' | 'woody' | 'floral' | 'fresh' | string;
   volume: string;
   rating: number;
   popularity: number;
@@ -35,6 +37,7 @@ export interface Product {
   stock: number;
   image?: string;
   video?: string;
+  active?: boolean;
 }
 
 export interface CartItem {
@@ -58,26 +61,32 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
-  order_number: string;
+  order_number?: string;
   customer_name: string;
-  phone: string;
-  address: string;
-  items: OrderItem[];
+  phone?: string;
+  customer_phone?: string;
+  address?: string;
+  customer_address?: string;
+  items?: OrderItem[];
   total: number;
-  payment_method: 'cash' | 'card' | 'payme';
-  payment_status: 'pending' | 'paid';
-  order_status: 'processing' | 'delivered' | 'cancelled';
-  shipping_method: 'standart' | 'express' | 'pickup';
+  payment_method?: 'cash' | 'card' | 'payme' | string;
+  payment_status?: 'pending' | 'paid';
+  order_status?: 'pending' | 'processing' | 'delivered' | 'cancelled' | string;
+  status?: string;
+  shipping_method?: 'standart' | 'express' | 'pickup' | string;
+  delivery_method?: string;
   created_at?: string;
 }
 
 export interface Review {
   id: string;
   product_id: string;
-  reviewer: string;
+  reviewer?: string;
+  customer_name?: string;
   rating: number;
-  text: string;
-  status: 'pending' | 'approved' | 'rejected';
+  text?: string;
+  review_text?: string;
+  status: 'pending' | 'approved' | 'rejected' | string;
   created_at: string;
 }
 

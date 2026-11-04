@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '@/lib/supabase/client';
 import { antiBot } from '@/lib/rateLimit';
+import { checkIsAdmin } from '@/lib/auth/adminAuth';
 
 export interface UserProfile {
   id: string;
@@ -11,10 +12,11 @@ export interface UserProfile {
 
 interface AuthState {
   user: UserProfile | null;
+  isAdmin: boolean;
   loading: boolean;
   error: string | null;
   signUp: (email: string, pass: string, fullName: string, phone: string, honeypot?: string) => Promise<boolean>;
-  signIn: (email: string, pass: string) => Promise<boolean>;
+  signIn: (email: string, pass: string) => Promise<{ success: boolean; isAdmin: boolean }>;
   signOut: () => Promise<void>;
   checkSession: () => Promise<void>;
   clearError: () => void;
@@ -22,6 +24,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
+  isAdmin: false,
   loading: false,
   error: null,
 
@@ -31,6 +34,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
+        const isAdmin = await checkIsAdmin(session.user.id, session.user.email);
         set({
           user: {
             id: session.user.id,
@@ -38,19 +42,20 @@ export const useAuthStore = create<AuthState>((set) => ({
             fullName: session.user.user_metadata?.full_name || 'Mijoz',
             phone: session.user.user_metadata?.phone || '',
           },
+          isAdmin,
         });
+      } else {
+        set({ user: null, isAdmin: false });
       }
     } catch (_) {}
   },
 
   signUp: async (email, pass, fullName, phone, honeypot = '') => {
-    // 1. Bot tekshiruvi
     if (!antiBot.checkHoneypot(honeypot)) {
       set({ error: 'Xavfsizlik tekshiruvidan o‘tmadiniz.' });
       return false;
     }
 
-    // 2. Rate limit tekshiruvi (har 15 soniyada faqat 1 marta ro'yxatdan o'tish)
     const limit = antiBot.checkRateLimit('auth_signup', 15);
     if (!limit.allowed) {
       set({ error: `Iltimos, ${limit.remainingSeconds} soniyadan keyin qayta urinib ko‘ring.` });
@@ -77,6 +82,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
 
       if (data.user) {
+        const isAdmin = await checkIsAdmin(data.user.id, data.user.email);
         set({
           user: {
             id: data.user.id,
@@ -84,6 +90,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             fullName,
             phone,
           },
+          isAdmin,
           loading: false,
         });
         return true;
@@ -98,11 +105,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   signIn: async (email, pass) => {
-    // Rate limit: har 5 soniyada 1 marta kirish urinishi
-    const limit = antiBot.checkRateLimit('auth_signin', 5);
+    const limit = antiBot.checkRateLimit('auth_signin', 3);
     if (!limit.allowed) {
       set({ error: `Juda ko‘p urinish. ${limit.remainingSeconds} soniya kuting.` });
-      return false;
+      return { success: false, isAdmin: false };
     }
 
     set({ loading: true, error: null });
@@ -115,10 +121,11 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       if (error) {
         set({ error: error.message, loading: false });
-        return false;
+        return { success: false, isAdmin: false };
       }
 
       if (data.user) {
+        const isAdmin = await checkIsAdmin(data.user.id, data.user.email);
         set({
           user: {
             id: data.user.id,
@@ -126,16 +133,17 @@ export const useAuthStore = create<AuthState>((set) => ({
             fullName: data.user.user_metadata?.full_name || 'Mijoz',
             phone: data.user.user_metadata?.phone || '',
           },
+          isAdmin,
           loading: false,
         });
-        return true;
+        return { success: true, isAdmin };
       }
 
       set({ loading: false });
-      return true;
+      return { success: false, isAdmin: false };
     } catch (err: any) {
       set({ error: err.message || 'Kirishda xatolik yuz berdi.', loading: false });
-      return false;
+      return { success: false, isAdmin: false };
     }
   },
 
@@ -143,6 +151,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await supabase.auth.signOut();
     } catch (_) {}
-    set({ user: null });
+    set({ user: null, isAdmin: false });
   },
 }));
