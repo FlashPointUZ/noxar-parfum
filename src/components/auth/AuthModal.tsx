@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUIStore } from '@/store/useUIStore';
-import { supabase } from '@/lib/supabase/client';
+import { ordersService } from '@/services/ordersService';
 import { formatPrice } from '@/lib/utils';
 import { Order } from '@/types/database';
 import { useRouter } from 'next/navigation';
@@ -43,21 +43,10 @@ export const AuthModal: React.FC = () => {
       if (!user) return;
       setLoadingOrders(true);
       try {
-        const { data } = await supabase
-          .from('orders')
-          .select('*')
-          .or(`customer_name.eq.${user.fullName},customer_phone.eq.${user.phone}`)
-          .order('created_at', { ascending: false });
-
-        if (data && data.length > 0) {
-          setUserOrders(data);
-        } else {
-          const local = JSON.parse(localStorage.getItem('noxar-orders') || '[]');
-          setUserOrders(local);
-        }
+        const data = await ordersService.fetchCustomerOrders(user.fullName, user.phone);
+        setUserOrders(data);
       } catch (_) {
-        const local = JSON.parse(localStorage.getItem('noxar-orders') || '[]');
-        setUserOrders(local);
+        setUserOrders([]);
       } finally {
         setLoadingOrders(false);
       }

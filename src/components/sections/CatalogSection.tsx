@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Product, Department, Gender } from '@/types/database';
+import { Product } from '@/types/database';
 import { initialProducts } from '@/lib/data/products';
 import { ProductCard } from '@/components/commerce/ProductCard';
-import { supabase } from '@/lib/supabase/client';
+import { productsService } from '@/services/productsService';
 import { useSiteContentStore } from '@/store/useSiteContentStore';
 import { SlidersHorizontal, Sparkles } from 'lucide-react';
 
@@ -17,52 +17,15 @@ export const CatalogSection: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('default');
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Supabase dan real mahsulotlarni tortish
+  // Supabase dan toza xizmat qatlami (productsService) orqali yuklash
   useEffect(() => {
-    async function fetchProducts() {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (data && data.length > 0 && !error) {
-          const remoteProducts: Product[] = data.map((item: any) => ({
-            id: String(item.id),
-            name: item.name,
-            brand: item.brand || 'NOXAR',
-            price: `${Number(item.price || 0).toLocaleString('uz-UZ')} so'm`,
-            amount: Number(item.price || 0),
-            notes: item.description || item.notes || 'Nafis premium kompozitsiya',
-            categories: [item.category || 'atirlar', item.gender || 'unisex'],
-            department: (item.category as Department) || 'atirlar',
-            gender: (item.gender as Gender) || 'unisex',
-            family: item.family || 'amber',
-            volume: '50',
-            rating: item.rating || 4.8,
-            popularity: item.popularity || 80,
-            art: item.art || 'black-art',
-            badge: item.badge || '',
-            top: item.top || 'Bosh nota',
-            heart: item.heart || 'Yurak nota',
-            base: item.base || 'Asosiy nota',
-            description: item.description || '',
-            usage: 'Puls nuqtalariga seping.',
-            features: ['Eau de Parfum', item.gender || 'Uniseks'],
-            stock: Number(item.stock || 5),
-            image: item.image,
-            active: item.active !== false,
-          }));
-          setProducts(remoteProducts);
-        }
-      } catch (e) {
-        console.warn('Supabase fetch xatoligi, demo ma’lumotlar ishlatiladi.');
-      } finally {
-        setLoading(false);
-      }
+    async function loadProducts() {
+      setLoading(true);
+      const data = await productsService.fetchProducts();
+      setProducts(data);
+      setLoading(false);
     }
-    fetchProducts();
+    loadProducts();
   }, []);
 
   // Filtrlash va saralash
@@ -118,13 +81,13 @@ export const CatalogSection: React.FC = () => {
         </div>
 
         {/* Bo'limlar Navigatsiyasi (Scrollable on Mobile) */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-3 pt-1 no-scrollbar border-b border-border-hairline mb-8">
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 pt-1 no-scrollbar border-b border-border-hairline mb-8 -mx-4 px-4 sm:mx-0 sm:px-0">
           {departments.map((dept) => (
             <button
               key={dept.id}
               type="button"
               onClick={() => setSelectedDept(dept.id)}
-              className={`px-4 py-2 rounded-full text-xs uppercase tracking-wider font-medium whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-full text-xs uppercase tracking-wider font-medium whitespace-nowrap shrink-0 transition-all ${
                 selectedDept === dept.id
                   ? 'bg-gold-primary text-black font-semibold shadow-sm'
                   : 'bg-surface-1 border border-border-hairline text-text-muted hover:text-text-main hover:border-gold-primary/30'
@@ -136,11 +99,11 @@ export const CatalogSection: React.FC = () => {
         </div>
 
         {/* Filtrlar va Saralash Paneli */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-8 bg-surface-1 p-3 sm:p-4 rounded-xl border border-border-hairline">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-8 bg-surface-1 p-2.5 sm:p-4 rounded-2xl border border-border-hairline">
           {/* Jins Filtr */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <span className="text-xs text-text-muted uppercase tracking-wider hidden md:inline">Jins:</span>
-            <div className="grid grid-cols-4 sm:flex gap-1 sm:gap-1.5 w-full sm:w-auto">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+            <span className="text-xs text-text-muted uppercase tracking-wider hidden md:inline shrink-0">Jins:</span>
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               {[
                 { id: 'all', label: 'Barchasi' },
                 { id: 'ayollar', label: 'Ayollar' },
@@ -151,10 +114,10 @@ export const CatalogSection: React.FC = () => {
                   key={g.id}
                   type="button"
                   onClick={() => setSelectedGender(g.id)}
-                  className={`px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs text-center font-medium tracking-wide transition-all ${
+                  className={`px-3 py-1.5 rounded-full text-[11px] sm:text-xs text-center font-medium tracking-wide whitespace-nowrap transition-all ${
                     selectedGender === g.id
-                      ? 'bg-surface-2 text-gold-primary font-semibold border border-gold-primary/40 shadow-sm'
-                      : 'text-text-muted hover:text-text-main hover:bg-surface-2/50'
+                      ? 'bg-gold-primary text-black font-semibold shadow-sm'
+                      : 'bg-surface-2/70 text-text-muted hover:text-text-main hover:bg-surface-2'
                   }`}
                 >
                   {g.label}
@@ -165,14 +128,14 @@ export const CatalogSection: React.FC = () => {
 
           {/* Saralash Dropdown */}
           <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto pt-2.5 sm:pt-0 border-t sm:border-t-0 border-border-hairline/60">
-            <div className="flex items-center gap-1.5 text-text-muted text-xs">
-              <SlidersHorizontal className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-1.5 text-text-muted text-xs shrink-0">
+              <SlidersHorizontal className="w-3.5 h-3.5 text-gold-primary" />
               <span className="sm:hidden text-text-muted uppercase tracking-wider text-[10px]">Saralash:</span>
             </div>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-surface-2 text-text-main text-xs px-3 py-1.5 rounded-lg border border-border-hairline outline-none focus:border-gold-primary transition-all cursor-pointer flex-1 sm:flex-initial"
+              className="bg-surface-2 text-text-main text-xs px-3 py-1.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary transition-all cursor-pointer flex-1 sm:flex-initial"
             >
               <option value="default">Tavsiya etilgan</option>
               <option value="priceAsc">Narx: arzonidan</option>

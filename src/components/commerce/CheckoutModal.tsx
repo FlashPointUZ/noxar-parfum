@@ -5,7 +5,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { useUIStore } from '@/store/useUIStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { formatPrice, generateOrderNumber } from '@/lib/utils';
-import { supabase } from '@/lib/supabase/client';
+import { ordersService } from '@/services/ordersService';
 import { antiBot } from '@/lib/rateLimit';
 import { X, CheckCircle2, ShieldCheck, Truck, CreditCard, ShieldAlert } from 'lucide-react';
 
@@ -68,28 +68,16 @@ export const CheckoutModal: React.FC = () => {
     setLoading(true);
 
     const orderNumber = generateOrderNumber();
-    const orderData = {
-      order_number: orderNumber,
-      customer_name: fullName,
+    await ordersService.createOrder({
+      orderNumber,
+      customerName: fullName,
       phone,
       address: shippingMethod === 'pickup' ? 'Showroomdan olib ketish (Bekbaraka)' : address,
       items: items.map((i) => ({ id: i.id, name: i.name, amount: i.amount, quantity: i.quantity })),
       total,
-      payment_method: paymentMethod,
-      payment_status: 'pending',
-      order_status: 'processing',
-      shipping_method: shippingMethod,
-    };
-
-    try {
-      await supabase.from('orders').insert([orderData]);
-    } catch (err) {
-      console.warn('Supabase offline, order local tarzda qabul qilindi.');
-    }
-
-    // Mahalliy buyurtmalar tarixiga saqlab qo'yish
-    const existingOrders = JSON.parse(localStorage.getItem('noxar-orders') || '[]');
-    localStorage.setItem('noxar-orders', JSON.stringify([orderData, ...existingOrders]));
+      paymentMethod,
+      shippingMethod,
+    });
 
     clearCart();
     setLoading(false);

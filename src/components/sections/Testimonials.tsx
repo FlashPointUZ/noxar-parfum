@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Star, Send, CheckCircle2, ShieldAlert } from 'lucide-react';
-import { supabase } from '@/lib/supabase/client';
+import { reviewsService } from '@/services/reviewsService';
 import { antiBot } from '@/lib/rateLimit';
 import { useSiteContentStore } from '@/store/useSiteContentStore';
 
@@ -59,17 +59,11 @@ export const Testimonials: React.FC = () => {
       return;
     }
 
-    try {
-      await supabase.from('reviews').insert({
-        reviewer: name,
-        product_id: 'general',
-        rating,
-        text,
-        status: 'pending',
-      });
-    } catch (e) {
-      // Offline fallback
-    }
+    await reviewsService.submitReview({
+      reviewer: name,
+      rating,
+      text,
+    });
 
     setReviews([
       { id: String(Date.now()), author: name, product: 'NOXAR Tanlovi', rating, comment: text },

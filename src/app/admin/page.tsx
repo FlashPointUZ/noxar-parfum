@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { initialProducts } from '@/lib/data/products';
 import { Product, Order, Review, SiteContent } from '@/types/database';
-import { supabase } from '@/lib/supabase/client';
+import { productsService, ordersService, reviewsService, contentService } from '@/services';
 import { checkIsAdmin } from '@/lib/auth/adminAuth';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSiteContentStore } from '@/store/useSiteContentStore';
@@ -115,72 +115,26 @@ export default function AdminPage() {
     verifyUser();
   }, [checkSession]);
 
-  // 2. Real ma'lumotlarni Supabase dan yuklash
+  // 2. Real ma'lumotlarni Service Layer orqali yuklash
   const loadSupabaseData = useCallback(async () => {
     setLoadingData(true);
     try {
       // Mahsulotlar
-      const { data: remoteProducts } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (remoteProducts && remoteProducts.length > 0) {
-        const formatted: Product[] = remoteProducts.map((p: any) => ({
-          id: String(p.id),
-          name: p.name,
-          brand: p.brand || 'NOXAR',
-          price: `${Number(p.price || 0).toLocaleString('uz-UZ')} so'm`,
-          amount: Number(p.price || 0),
-          notes: p.description || p.notes || '',
-          categories: [p.category || 'atirlar', p.gender || 'unisex'],
-          department: p.category || 'atirlar',
-          gender: p.gender || 'unisex',
-          family: 'amber',
-          volume: '50',
-          rating: 4.8,
-          popularity: 80,
-          art: 'black-art',
-          top: 'Bosh nota',
-          heart: 'Yurak nota',
-          base: 'Asos nota',
-          description: p.description || '',
-          usage: 'Puls nuqtalariga seping.',
-          features: ['Eau de Parfum'],
-          stock: Number(p.stock || 0),
-          image: p.image || undefined,
-          active: p.active !== false,
-        }));
-        setProducts(formatted);
-      }
+      const remoteProducts = await productsService.fetchProducts();
+      setProducts(remoteProducts);
 
       // Sayt Kontenti (CMS)
       await fetchSiteContent();
 
       // Buyurtmalar
-      const { data: remoteOrders } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (remoteOrders && remoteOrders.length > 0) {
-        setOrders(remoteOrders);
-      } else {
-        const local = JSON.parse(localStorage.getItem('noxar-orders') || '[]');
-        setOrders(local);
-      }
+      const remoteOrders = await ordersService.fetchOrders();
+      setOrders(remoteOrders);
 
       // Sharhlar (Reviews)
-      const { data: remoteReviews } = await supabase
-        .from('reviews')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (remoteReviews && remoteReviews.length > 0) {
-        setReviews(remoteReviews);
-      }
+      const remoteReviews = await reviewsService.fetchAllReviews();
+      setReviews(remoteReviews);
     } catch (err) {
-      console.warn('Supabase ma’lumotlarini yuklashda xatolik:', err);
+      console.warn('Admin ma’lumotlarini yuklashda xatolik:', err);
     } finally {
       setLoadingData(false);
     }
@@ -218,7 +172,7 @@ export default function AdminPage() {
     }
   };
 
-  // Yangi Mahsulot Qo'shish (Insert to Supabase)
+  // Yangi Mahsulot Qo'shish (Service Layer orqali)
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittingProduct(true);
@@ -226,52 +180,21 @@ export default function AdminPage() {
     const finalCategory =
       newProductDept === 'custom' ? customCategory.trim().toLowerCase() || 'atirlar' : newProductDept;
     const amount = Number(newProductPrice);
-    const newId = `prod-${Date.now()}`;
 
-    const newProdItem: Product = {
-      id: newId,
+    const res = await productsService.createProduct({
       name: newProductName,
       brand: newProductBrand,
-      price: `${amount.toLocaleString('uz-UZ')} so'm`,
-      amount,
-      notes: newProductNotes || 'Eksklyuziv kompozitsiya',
-      categories: [finalCategory, newProductGender],
-      department: finalCategory,
-      gender: newProductGender as any,
-      family: 'amber',
-      volume: '50',
-      rating: 5.0,
-      popularity: 50,
-      art: 'black-art',
-      top: 'Bosh nota',
-      heart: 'Yurak nota',
-      base: 'Asos nota',
-      description: newProductNotes,
-      usage: 'Puls nuqtalariga seping.',
-      features: ['Eau de Parfum'],
+      price: amount,
       stock: Number(newProductStock),
+      category: finalCategory,
+      gender: newProductGender,
+      description: newProductNotes,
       image: newProductImage || undefined,
       active: true,
-    };
+    });
 
-    try {
-      await supabase.from('products').insert([
-        {
-          id: newId,
-          name: newProductName,
-          brand: newProductBrand,
-          price: amount,
-          stock: Number(newProductStock),
-          category: finalCategory,
-          gender: newProductGender,
-          description: newProductNotes,
-          image: newProductImage || null,
-          active: true,
-        },
-      ]);
-      setProducts([newProdItem, ...products]);
-    } catch (_) {
-      setProducts([newProdItem, ...products]);
+    if (res.data) {
+      setProducts([res.data, ...products]);
     }
 
     setSubmittingProduct(false);
@@ -296,11 +219,11 @@ export default function AdminPage() {
     setEditActive(p.active !== false);
   };
 
-  // Mahsulotni tahrirlash (Update to Supabase)
+  // Mahsulotni tahrirlash (Service Layer orqali)
   const handleSaveEditProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
-    setUpdatingProduct(true);
+    setUpdatingProduct(false);
 
     const amount = Number(editPrice);
     const updatedItem: Product = {
@@ -319,101 +242,77 @@ export default function AdminPage() {
       active: editActive,
     };
 
-    try {
-      await supabase
-        .from('products')
-        .update({
-          name: editName,
-          brand: editBrand,
-          price: amount,
-          stock: Number(editStock),
-          category: editDept,
-          gender: editGender,
-          description: editNotes,
-          image: editImage || null,
-          active: editActive,
-        })
-        .eq('id', editingProduct.id);
+    await productsService.updateProduct(editingProduct.id, {
+      name: editName,
+      brand: editBrand,
+      price: amount,
+      stock: Number(editStock),
+      category: editDept,
+      gender: editGender,
+      description: editNotes,
+      image: editImage || undefined,
+      active: editActive,
+    });
 
-      setProducts(products.map((p) => (p.id === editingProduct.id ? updatedItem : p)));
-    } catch (err) {
-      console.error('Mahsulotni yangilashda xatolik:', err);
-      setProducts(products.map((p) => (p.id === editingProduct.id ? updatedItem : p)));
-    } finally {
-      setUpdatingProduct(false);
-      setEditingProduct(null);
-    }
+    setProducts(products.map((p) => (p.id === editingProduct.id ? updatedItem : p)));
+    setUpdatingProduct(false);
+    setEditingProduct(null);
   };
 
-  // Mahsulotni o'chirish (Delete from Supabase)
+  // Mahsulotni o'chirish (Service Layer orqali)
   const handleDeleteProduct = async (id: string) => {
     if (!confirm('Haqiqatan ham bu mahsulotni o‘chirmoqchimisiz?')) return;
     setProducts(products.filter((p) => p.id !== id));
-    try {
-      await supabase.from('products').delete().eq('id', id);
-    } catch (_) {}
+    await productsService.deleteProduct(id);
   };
 
   // Mahsulot faolligini tezkor o'zgartirish (Toggle Active/Inactive)
   const handleToggleProductActive = async (p: Product) => {
-    const newStatus = !(p.active !== false);
+    const currentActive = p.active !== false;
+    const newStatus = !currentActive;
     setProducts(products.map((item) => (item.id === p.id ? { ...item, active: newStatus } : item)));
-    try {
-      await supabase.from('products').update({ active: newStatus }).eq('id', p.id);
-    } catch (_) {}
+    await productsService.toggleActive(p.id, currentActive);
   };
 
   // Stokni tezkor o'zgartirish (+1 / -1)
   const handleStockDelta = async (p: Product, delta: number) => {
     const newStock = Math.max(0, p.stock + delta);
     setProducts(products.map((item) => (item.id === p.id ? { ...item, stock: newStock } : item)));
-    try {
-      await supabase.from('products').update({ stock: newStock }).eq('id', p.id);
-    } catch (_) {}
+    await productsService.updateStock(p.id, newStock);
   };
 
-  // Buyurtma holatini yangilash (Update order status)
+  // Buyurtma holatini yangilash (Service Layer orqali)
   const handleOrderStatusChange = async (orderId: string, newStatus: string) => {
     const updated = orders.map((o) => (o.id === orderId ? { ...o, status: newStatus, order_status: newStatus } : o));
     setOrders(updated);
     if (selectedOrder && selectedOrder.id === orderId) {
       setSelectedOrder({ ...selectedOrder, status: newStatus, order_status: newStatus });
     }
-    try {
-      await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
-    } catch (_) {}
+    await ordersService.updateOrderStatus(orderId, newStatus);
   };
 
-  // Buyurtmani o'chirish (Delete order)
+  // Buyurtmani o'chirish (Service Layer orqali)
   const handleDeleteOrder = async (orderId: string) => {
     if (!confirm('Ushbu buyurtmani butunlay o‘chirmoqchimisiz?')) return;
     setOrders(orders.filter((o) => o.id !== orderId));
     if (selectedOrder && selectedOrder.id === orderId) {
       setSelectedOrder(null);
     }
-    try {
-      await supabase.from('orders').delete().eq('id', orderId);
-    } catch (_) {}
+    await ordersService.deleteOrder(orderId);
   };
 
-  // Sharh holatini tasdiqlash / rad etish (Approve / Reject)
+  // Sharh holatini tasdiqlash / rad etish (Service Layer orqali)
   const handleReviewStatusChange = async (reviewId: string, status: 'approved' | 'rejected') => {
     const updated = reviews.map((r) => (r.id === reviewId ? { ...r, status } : r));
     setReviews(updated);
-    try {
-      await supabase.from('reviews').update({ status }).eq('id', reviewId);
-    } catch (_) {}
+    await reviewsService.updateReviewStatus(reviewId, status);
   };
 
-  // Noo'rin sharhni o'chirish (Delete review)
+  // Noo'rin sharhni o'chirish (Service Layer orqali)
   const handleDeleteReview = async (reviewId: string) => {
     if (!confirm('Ushbu noo‘rin sharhni butunlay o‘chirmoqchimisiz?')) return;
     setReviews(reviews.filter((r) => r.id !== reviewId));
-    try {
-      await supabase.from('reviews').delete().eq('id', reviewId);
-    } catch (err) {
-      console.error('Sharhni o‘chirishda xatolik:', err);
-    }
+    await reviewsService.deleteReview(reviewId);
   };
 
   // Sayt Kontentini (CMS) saqlash
