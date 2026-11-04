@@ -4,8 +4,11 @@ import React, { useState } from 'react';
 import { Star, Send, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { antiBot } from '@/lib/rateLimit';
+import { useSiteContentStore } from '@/store/useSiteContentStore';
 
 export const Testimonials: React.FC = () => {
+  const { content } = useSiteContentStore();
+  const testContent = content.testimonials;
   const [reviews, setReviews] = useState([
     {
       id: '1',
@@ -82,14 +85,16 @@ export const Testimonials: React.FC = () => {
     <section id="reviews" className="py-20 lg:py-28 border-b border-border-hairline">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="text-[10px] uppercase tracking-[0.25em] text-gold-primary block mb-2 font-medium">
-            Mijozlar Fikri
-          </span>
+          {testContent.badge && (
+            <span className="text-[10px] uppercase tracking-[0.25em] text-gold-primary block mb-2 font-medium">
+              {testContent.badge}
+            </span>
+          )}
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-text-main">
-            Haqiqiy <span className="italic text-gold-light">tajribalar</span>
+            {testContent.title} <span className="italic text-gold-light">{testContent.title_highlight}</span>
           </h2>
           <p className="text-text-muted text-xs sm:text-sm mt-3 font-light">
-            Bizning mijozlarimiz NOXAR atirlari haqida nima deyishadi?
+            {testContent.subtitle}
           </p>
         </div>
 

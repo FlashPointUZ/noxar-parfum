@@ -5,9 +5,12 @@ import { Product, Department, Gender } from '@/types/database';
 import { initialProducts } from '@/lib/data/products';
 import { ProductCard } from '@/components/commerce/ProductCard';
 import { supabase } from '@/lib/supabase/client';
+import { useSiteContentStore } from '@/store/useSiteContentStore';
 import { SlidersHorizontal, Sparkles } from 'lucide-react';
 
 export const CatalogSection: React.FC = () => {
+  const { content } = useSiteContentStore();
+  const catalogContent = content.catalog;
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [selectedDept, setSelectedDept] = useState<string>('all');
   const [selectedGender, setSelectedGender] = useState<string>('all');
@@ -100,15 +103,17 @@ export const CatalogSection: React.FC = () => {
         {/* Section Heading */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-gold-primary block mb-2 font-medium">
-              Siz uchun tanlangan
-            </span>
+            {catalogContent.badge && (
+              <span className="text-[10px] uppercase tracking-[0.25em] text-gold-primary block mb-2 font-medium">
+                {catalogContent.badge}
+              </span>
+            )}
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-text-main">
-              Tavsiya <span className="italic text-gold-light">etamiz</span>
+              {catalogContent.title} <span className="italic text-gold-light">{catalogContent.title_highlight}</span>
             </h2>
           </div>
           <p className="text-text-muted text-xs sm:text-sm max-w-xs font-light">
-            Har bir xarakter va kayfiyat uchun o‘ziga xos mualliflik kompozitsiyasi.
+            {catalogContent.subtitle}
           </p>
         </div>
 

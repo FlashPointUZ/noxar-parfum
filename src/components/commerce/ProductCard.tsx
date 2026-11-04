@@ -51,12 +51,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current' : ''}`} />
         </button>
 
-        {/* Flakon san'ati */}
+        {/* Flakon san'ati yoki Yuklangan rasm */}
         <div
           onClick={() => setSelectedProduct(product)}
-          className="cursor-pointer transition-transform duration-500 group-hover:scale-105"
+          className="cursor-pointer transition-transform duration-500 group-hover:scale-105 flex items-center justify-center w-full h-full"
         >
-          <BottleArt art={product.art} size="md" />
+          {product.image ? (
+            <img
+              src={product.image}
+              alt={product.name}
+              className="max-h-52 object-contain drop-shadow-md"
+            />
+          ) : (
+            <BottleArt art={product.art} size="md" />
+          )}
         </div>
       </div>
 

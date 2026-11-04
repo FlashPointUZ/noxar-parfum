@@ -11,6 +11,7 @@ import { ProductModal } from '@/components/commerce/ProductModal';
 import { CheckoutModal } from '@/components/commerce/CheckoutModal';
 import { SearchModal } from '@/components/commerce/SearchModal';
 import { AuthModal } from '@/components/auth/AuthModal';
+import { ContentInitializer } from '@/components/providers/ContentInitializer';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -67,6 +68,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${playfair.variable} ${dmSans.variable} font-sans min-h-screen flex flex-col`}>
+        <ContentInitializer />
         <AnnouncementBar />
         <Header />
 

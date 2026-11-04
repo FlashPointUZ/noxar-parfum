@@ -100,3 +100,57 @@ export interface PromoCode {
   expires?: string;
   limit?: number;
 }
+
+export interface SiteContent {
+  announcement: {
+    text: string;
+    active: boolean;
+  };
+  hero: {
+    badge: string;
+    title_line1: string;
+    title_highlight: string;
+    title_line2: string;
+    subtitle: string;
+    cta_primary: string;
+    cta_secondary: string;
+    image_url?: string;
+  };
+  new_collection: {
+    badge: string;
+    title: string;
+    title_highlight: string;
+    link_text: string;
+  };
+  catalog: {
+    badge: string;
+    title: string;
+    title_highlight: string;
+    subtitle: string;
+  };
+  brand_story: {
+    badge: string;
+    title: string;
+    title_highlight: string;
+    title_line2: string;
+    description: string;
+    city_country: string;
+    card_title: string;
+    showroom_name: string;
+    showroom_address: string;
+    maps_url: string;
+  };
+  testimonials: {
+    badge: string;
+    title: string;
+    title_highlight: string;
+    subtitle: string;
+  };
+  contacts: {
+    phone: string;
+    telegram: string;
+    instagram: string;
+    footer_slogan: string;
+    showroom_address: string;
+  };
+}

@@ -134,3 +134,30 @@ Ushbu reja **NOXAR PARFUM** loyihasini **Nutlope/hallmark** anti-AI-slop dizayn 
   - Barcha modallar (Auth, Checkout, Product, Add Product) 320px ekranlarda chetidan toshib ketmasligi uchun qulay `p-5 sm:p-8` o‘lchamiga keltirildi.
 - [x] **9.4. Yakuniy Statik Build**:
   - `npm run build` muvaffaqiyatli o‘tib, barcha sahifalar to‘liq statik HTML/JS ko‘rinishida eksport qilindi.
+
+---
+
+## 🌐 10-BOSQICH: Barcha Kontentni Backendga (Supabase) Ko‘chirish & Rasm Yuklash
+
+- [x] **10.1. Dinamik Kontent Sxemasi (`public.site_content`)**:
+  - `noxar-site-content-schema.sql` yaratildi: barcha sahifalar (announcement, hero, new_collection, catalog, brand_story, testimonials, contacts) uchun JSONB formatidagi moslashuvchan jadval va RLS siyosatlari.
+- [x] **10.2. Rasm Yuklash va Siqish Xizmati (`storage.ts`)**:
+  - `uploadImage()` va `compressImageFile()` funksiyalari yaratildi: Supabase Storage bucketiga yuklash, mavjud bo‘lmaganda esa brauzerda siqilgan xavfsiz Base64 Data URL formatiga o‘tkazish (100% ishonchlilik).
+- [x] **10.3. Dinamik Kontent Do‘koni (`useSiteContentStore.ts`)**:
+  - Sayt ochilganda avtomatik Supabase bazasidan yuklanadi, offline holatda esa zaxira ma'lumotlar bilan uzluksiz ishlaydi.
+- [x] **10.4. Barcha Sahifa va Seksiyalarni Dinamik Qilish**:
+  - `AnnouncementBar.tsx`: E'lon matni va holati backenddan olinadi.
+  - `HeroSection.tsx`: Badj, sarlavha, kursiv so‘z, subtitle, tugmalar va banner rasmi backenddan olinadi.
+  - `NewCollectionBento.tsx`: Sarlavha, badj va mahsulot rasmlari backenddan olinadi.
+  - `CatalogSection.tsx`: Badj, sarlavha va tavsif backenddan olinadi.
+  - `BrandStory.tsx`: Hikoya, showroom nomi, manzil va xarita havolasi backenddan olinadi.
+  - `Testimonials.tsx`: Sarlavha va tavsif backenddan olinadi.
+  - `Footer.tsx`: Aloqa, showroom, ijtimoiy tarmoqlar va shior backenddan olinadi.
+- [x] **10.5. Haqiqiy Rasm Ko‘rsatish**:
+  - `ProductCard.tsx`, `ProductModal.tsx`, `CartDrawer.tsx`, `WishlistDrawer.tsx` agar rasm yuklangan bo‘lsa haqiqiy rasmni, aks holda BottleArt flakonini ko‘rsatadi.
+- [x] **10.6. Admin Panel CMS & Rasm Boshqaruvi**:
+  - Yangi "Sayt Matnlari (CMS)" bo‘limi qo‘shildi: admin barcha matnlarni real vaqtda bazada saqlashi mumkin.
+  - Yangi mahsulot qo‘shish modaliga rasm yuklash (fayl yoki havola) va preview funksiyasi qo‘shildi.
+  - Mahsulotlar jadvalida har bir mahsulotning rasmi ko‘rsatiladi.
+- [x] **10.7. Build va Eksport Sinovi**:
+  - `npm run build` muvaffaqiyatli o‘tdi (kod 0), barcha sahifalar to‘liq statik HTML/JS ko‘rinishida eksport qilindi.

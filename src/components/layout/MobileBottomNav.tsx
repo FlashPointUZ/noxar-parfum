@@ -76,15 +76,7 @@ export const MobileBottomNav: React.FC = () => {
       </button>
 
       {/* Dark / Light Toggle */}
-      <button
-        type="button"
-        onClick={toggleTheme}
-        className="flex flex-col items-center gap-1 text-[10px] text-text-muted hover:text-gold-primary transition-colors py-1"
-        aria-label="Mavzuni almashtirish"
-      >
-        {theme === 'dark' ? <Sun className="w-4 h-4 text-gold-light" /> : <Moon className="w-4 h-4" />}
-        <span>{theme === 'dark' ? 'Yorug‘' : 'Qorong‘i'}</span>
-      </button>
+     
     </nav>
   );
 };

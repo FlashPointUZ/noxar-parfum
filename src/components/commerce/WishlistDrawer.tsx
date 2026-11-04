@@ -65,9 +65,13 @@ export const WishlistDrawer: React.FC = () => {
                     setSelectedProduct(product);
                     setWishlistOpen(false);
                   }}
-                  className="w-16 h-20 bg-surface-1 rounded-lg border border-border-hairline flex items-center justify-center flex-shrink-0 cursor-pointer"
+                  className="w-16 h-20 bg-surface-1 rounded-lg border border-border-hairline flex items-center justify-center flex-shrink-0 cursor-pointer overflow-hidden p-1"
                 >
-                  <BottleArt art={product.art} size="sm" className="scale-75" />
+                  {product.image ? (
+                    <img src={product.image} alt={product.name} className="w-full h-full object-contain" />
+                  ) : (
+                    <BottleArt art={product.art} size="sm" className="scale-75" />
+                  )}
                 </div>
 
                 <div className="flex-1 min-w-0">

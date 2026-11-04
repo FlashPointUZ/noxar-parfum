@@ -42,9 +42,17 @@ export const ProductModal: React.FC = () => {
         </button>
 
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-8 items-start">
-          {/* Chap: Art / Bottle */}
-          <div className="sm:col-span-5 bg-surface-2/60 rounded-xl p-8 flex items-center justify-center border border-border-hairline">
-            <BottleArt art={selectedProduct.art} size="lg" />
+          {/* Chap: Art / Bottle yoki Rasm */}
+          <div className="sm:col-span-5 bg-surface-2/60 rounded-xl p-6 sm:p-8 flex items-center justify-center border border-border-hairline min-h-[260px]">
+            {selectedProduct.image ? (
+              <img
+                src={selectedProduct.image}
+                alt={selectedProduct.name}
+                className="max-h-64 object-contain drop-shadow-2xl"
+              />
+            ) : (
+              <BottleArt art={selectedProduct.art} size="lg" />
+            )}
           </div>
 
           {/* O'ng: Ma'lumot */}

@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { initialProducts } from '@/lib/data/products';
-import { Product, Order, Review } from '@/types/database';
+import { Product, Order, Review, SiteContent } from '@/types/database';
 import { supabase } from '@/lib/supabase/client';
 import { checkIsAdmin } from '@/lib/auth/adminAuth';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useSiteContentStore } from '@/store/useSiteContentStore';
+import { uploadImage } from '@/lib/supabase/storage';
 import { formatPrice } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -26,6 +28,11 @@ import {
   ShieldAlert,
   Star,
   RefreshCw,
+  FileText,
+  Upload,
+  Image as ImageIcon,
+  Save,
+  Check,
 } from 'lucide-react';
 
 export default function AdminPage() {
@@ -37,12 +44,18 @@ export default function AdminPage() {
   const [authError, setAuthError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'inventory' | 'reviews'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'inventory' | 'reviews' | 'content'>('dashboard');
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [orders, setOrders] = useState<Order[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Sayt Kontentini boshqarish holati (CMS)
+  const { content, updateFullContent, fetchContent: fetchSiteContent } = useSiteContentStore();
+  const [editingContent, setEditingContent] = useState<SiteContent>(content);
+  const [savingContent, setSavingContent] = useState(false);
+  const [contentSaveSuccess, setContentSaveSuccess] = useState(false);
 
   // Yangi mahsulot formasi holati
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -54,7 +67,30 @@ export default function AdminPage() {
   const [customCategory, setCustomCategory] = useState('');
   const [newProductGender, setNewProductGender] = useState('unisex');
   const [newProductNotes, setNewProductNotes] = useState('');
+  const [newProductImage, setNewProductImage] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [submittingProduct, setSubmittingProduct] = useState(false);
+
+  useEffect(() => {
+    setEditingContent(content);
+  }, [content]);
+
+  // Mahsulot rasm faylini yuklash
+  const handleProductImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const url = await uploadImage(file, 'products');
+      if (url) {
+        setNewProductImage(url);
+      }
+    } catch (err) {
+      console.error('Rasm yuklashda xatolik:', err);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   // 1. Foydalanuvchi sessiyasini va Adminlik huquqini tekshirish
   useEffect(() => {
@@ -99,10 +135,14 @@ export default function AdminPage() {
           usage: 'Puls nuqtalariga seping.',
           features: ['Eau de Parfum'],
           stock: Number(p.stock || 0),
+          image: p.image || undefined,
           active: p.active !== false,
         }));
         setProducts(formatted);
       }
+
+      // Sayt Kontentini ham yangilash
+      await fetchSiteContent();
 
       // Buyurtmalar
       const { data: remoteOrders } = await supabase
@@ -197,6 +237,7 @@ export default function AdminPage() {
       usage: 'Puls nuqtalariga seping.',
       features: ['Eau de Parfum'],
       stock: Number(newProductStock),
+      image: newProductImage || undefined,
       active: true,
     };
 
@@ -211,6 +252,7 @@ export default function AdminPage() {
           category: finalCategory,
           gender: newProductGender,
           description: newProductNotes,
+          image: newProductImage || null,
           active: true,
         },
       ]);
@@ -230,6 +272,24 @@ export default function AdminPage() {
     setNewProductName('');
     setNewProductNotes('');
     setCustomCategory('');
+    setNewProductImage('');
+  };
+
+  // Sayt Kontentini (CMS) bazada saqlash
+  const handleSaveContent = async () => {
+    setSavingContent(true);
+    setContentSaveSuccess(false);
+    try {
+      const ok = await updateFullContent(editingContent);
+      if (ok) {
+        setContentSaveSuccess(true);
+        setTimeout(() => setContentSaveSuccess(false), 3500);
+      }
+    } catch (err) {
+      console.error('Kontent saqlashda xatolik:', err);
+    } finally {
+      setSavingContent(false);
+    }
   };
 
   // Mahsulotni o'chirish (Real Supabase Delete)
@@ -430,6 +490,7 @@ export default function AdminPage() {
             { id: 'orders', label: `Buyurtmalar (${orders.length})`, icon: ShoppingBag },
             { id: 'reviews', label: `Sharhlar (${reviews.length}${pendingReviewsCount > 0 ? ` · ${pendingReviewsCount} yangi` : ''})`, icon: MessageSquare },
             { id: 'inventory', label: 'Ombor', icon: AlertTriangle },
+            { id: 'content', label: 'Sayt Matnlari (CMS)', icon: FileText },
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -572,7 +633,21 @@ export default function AdminPage() {
                     .filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
                     .map((p) => (
                       <tr key={p.id} className="hover:bg-surface-2/30">
-                        <td className="py-3.5 px-4 font-serif text-text-main font-medium">{p.name}</td>
+                        <td className="py-3.5 px-4 font-serif text-text-main font-medium">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-11 rounded bg-surface-2 border border-border-hairline flex items-center justify-center flex-shrink-0 overflow-hidden">
+                              {p.image ? (
+                                <img src={p.image} alt={p.name} className="w-full h-full object-contain" />
+                              ) : (
+                                <span className="font-serif text-xs text-gold-primary">N</span>
+                              )}
+                            </div>
+                            <div>
+                              <span className="block font-medium">{p.name}</span>
+                              <span className="text-[10px] text-text-muted font-sans sm:hidden">{p.brand}</span>
+                            </div>
+                          </div>
+                        </td>
                         <td className="py-3.5 px-4 text-text-muted">{p.brand}</td>
                         <td className="py-3.5 px-4">
                           <span className="px-2 py-0.5 rounded text-[10px] uppercase font-medium bg-surface-2 text-gold-primary border border-border-hairline">
@@ -797,6 +872,578 @@ export default function AdminPage() {
                     </span>
                   </div>
                 ))}
+            </div>
+          </div>
+        )}
+
+        {/* 6. SAYT MATNLARI VA KONTENT (CMS) VIEW */}
+        {activeTab === 'content' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-1 p-6 rounded-2xl border border-border-hairline">
+              <div>
+                <h3 className="font-serif text-xl text-text-main">Sayt Matnlari va Kontent Boshqaruvi (CMS)</h3>
+                <p className="text-xs text-text-muted font-light mt-1">
+                  Sahifadagi barcha sarlavhalar, tavsiflar, e’lonlar va kontaktlarni backend bazasida real vaqtda tahrirlang.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSaveContent}
+                disabled={savingContent}
+                className={`px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider font-semibold flex items-center gap-2 transition-all ${
+                  contentSaveSuccess
+                    ? 'bg-green-500 text-white'
+                    : 'bg-gold-primary hover:bg-gold-light text-black disabled:opacity-50'
+                }`}
+              >
+                {savingContent ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Saqlanmoqda...</span>
+                  </>
+                ) : contentSaveSuccess ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>Bazada saqlandi!</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Barcha o‘zgarishlarni saqlash</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* 1. E'LONLAR SATRI */}
+              <div className="bg-surface-1 rounded-2xl border border-border-hairline p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-border-hairline pb-3">
+                  <h4 className="font-serif text-base text-text-main">1. E’lonlar satri (Announcement Bar)</h4>
+                  <label className="flex items-center gap-2 cursor-pointer text-xs text-text-muted">
+                    <input
+                      type="checkbox"
+                      checked={editingContent.announcement?.active !== false}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          announcement: {
+                            ...editingContent.announcement,
+                            active: e.target.checked,
+                          },
+                        })
+                      }
+                      className="accent-gold-primary"
+                    />
+                    <span>Faol</span>
+                  </label>
+                </div>
+
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">
+                    E’lon matni
+                  </label>
+                  <input
+                    type="text"
+                    value={editingContent.announcement?.text || ''}
+                    onChange={(e) =>
+                      setEditingContent({
+                        ...editingContent,
+                        announcement: {
+                          ...editingContent.announcement,
+                          text: e.target.value,
+                        },
+                      })
+                    }
+                    className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                  />
+                </div>
+              </div>
+
+              {/* 2. BOSH EKRAN (HERO) */}
+              <div className="bg-surface-1 rounded-2xl border border-border-hairline p-6 space-y-4 lg:col-span-2">
+                <div className="border-b border-border-hairline pb-3">
+                  <h4 className="font-serif text-base text-text-main">2. Bosh Sahifa Asosiy Bloki (Hero Section)</h4>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">
+                      Kichik Badj (Eyebrow)
+                    </label>
+                    <input
+                      type="text"
+                      value={editingContent.hero?.badge || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          hero: { ...editingContent.hero, badge: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">
+                      Sarlavha (1-qator)
+                    </label>
+                    <input
+                      type="text"
+                      value={editingContent.hero?.title_line1 || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          hero: { ...editingContent.hero, title_line1: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-gold-primary block mb-1">
+                      Ajratilgan / Kursiv So‘z
+                    </label>
+                    <input
+                      type="text"
+                      value={editingContent.hero?.title_highlight || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          hero: { ...editingContent.hero, title_highlight: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-gold-primary/60 outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">
+                      Sarlavha (2-qator)
+                    </label>
+                    <input
+                      type="text"
+                      value={editingContent.hero?.title_line2 || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          hero: { ...editingContent.hero, title_line2: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">
+                      Asosiy Tugma Matni
+                    </label>
+                    <input
+                      type="text"
+                      value={editingContent.hero?.cta_primary || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          hero: { ...editingContent.hero, cta_primary: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">
+                    Asosiy Tavsif / Subtitle
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={editingContent.hero?.subtitle || ''}
+                    onChange={(e) =>
+                      setEditingContent({
+                        ...editingContent,
+                        hero: { ...editingContent.hero, subtitle: e.target.value },
+                      })
+                    }
+                    className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary resize-none"
+                  />
+                </div>
+
+                {/* Hero Rasm Yuklash */}
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">
+                    Hero Banner Rasmi (Ixtiyoriy)
+                  </label>
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    {editingContent.hero?.image_url ? (
+                      <div className="relative w-28 h-20 rounded-xl overflow-hidden border border-border-hairline bg-surface-2 flex items-center justify-center">
+                        <img
+                          src={editingContent.hero.image_url}
+                          alt="Hero banner"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEditingContent({
+                              ...editingContent,
+                              hero: { ...editingContent.hero, image_url: '' },
+                            })
+                          }
+                          className="absolute top-1 right-1 p-1 rounded-full bg-red-500 text-white hover:bg-red-600"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-28 h-20 rounded-xl border border-dashed border-border-hairline flex flex-col items-center justify-center text-text-muted text-[10px]">
+                        <ImageIcon className="w-5 h-5 opacity-40 mb-1" />
+                        <span>Flakon san'ati</span>
+                      </div>
+                    )}
+
+                    <div className="flex-1 w-full space-y-2">
+                      <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-2 border border-border-hairline hover:border-gold-primary text-xs text-text-main transition-colors">
+                        <Upload className="w-3.5 h-3.5 text-gold-primary" />
+                        <span>{uploadingImage ? 'Yuklanmoqda...' : 'Banner rasmini kompyuterdan yuklash'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            setUploadingImage(true);
+                            try {
+                              const url = await uploadImage(file, 'banners');
+                              setEditingContent((prev) => ({
+                                ...prev,
+                                hero: { ...prev.hero, image_url: url },
+                              }));
+                            } finally {
+                              setUploadingImage(false);
+                            }
+                          }}
+                        />
+                      </label>
+                      <input
+                        type="url"
+                        value={editingContent.hero?.image_url || ''}
+                        onChange={(e) =>
+                          setEditingContent({
+                            ...editingContent,
+                            hero: { ...editingContent.hero, image_url: e.target.value },
+                          })
+                        }
+                        placeholder="Yoki banner rasm havolasini kiriting (https://...)"
+                        className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. YANGI KOLLEKSIYA */}
+              <div className="bg-surface-1 rounded-2xl border border-border-hairline p-6 space-y-4">
+                <div className="border-b border-border-hairline pb-3">
+                  <h4 className="font-serif text-base text-text-main">3. Yangi Kolleksiya (Bento Grid)</h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Badj</label>
+                    <input
+                      type="text"
+                      value={editingContent.new_collection?.badge || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          new_collection: { ...editingContent.new_collection, badge: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Sarlavha</label>
+                    <input
+                      type="text"
+                      value={editingContent.new_collection?.title || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          new_collection: { ...editingContent.new_collection, title: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-gold-primary block mb-1">
+                    Kursiv / Ajratilgan So‘z
+                  </label>
+                  <input
+                    type="text"
+                    value={editingContent.new_collection?.title_highlight || ''}
+                    onChange={(e) =>
+                      setEditingContent({
+                        ...editingContent,
+                        new_collection: { ...editingContent.new_collection, title_highlight: e.target.value },
+                      })
+                    }
+                    className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-gold-primary/60 outline-none focus:border-gold-primary"
+                  />
+                </div>
+              </div>
+
+              {/* 4. KATALOG SEKSIYASI */}
+              <div className="bg-surface-1 rounded-2xl border border-border-hairline p-6 space-y-4">
+                <div className="border-b border-border-hairline pb-3">
+                  <h4 className="font-serif text-base text-text-main">4. Katalog Seksiyasi</h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Badj</label>
+                    <input
+                      type="text"
+                      value={editingContent.catalog?.badge || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          catalog: { ...editingContent.catalog, badge: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Sarlavha</label>
+                    <input
+                      type="text"
+                      value={editingContent.catalog?.title || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          catalog: { ...editingContent.catalog, title: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-gold-primary block mb-1">
+                    Kursiv So‘z
+                  </label>
+                  <input
+                    type="text"
+                    value={editingContent.catalog?.title_highlight || ''}
+                    onChange={(e) =>
+                      setEditingContent({
+                        ...editingContent,
+                        catalog: { ...editingContent.catalog, title_highlight: e.target.value },
+                      })
+                    }
+                    className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-gold-primary/60 outline-none focus:border-gold-primary"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Tavsif</label>
+                  <input
+                    type="text"
+                    value={editingContent.catalog?.subtitle || ''}
+                    onChange={(e) =>
+                      setEditingContent({
+                        ...editingContent,
+                        catalog: { ...editingContent.catalog, subtitle: e.target.value },
+                      })
+                    }
+                    className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                  />
+                </div>
+              </div>
+
+              {/* 5. BIZ HAQIMIZDA (BRAND STORY) */}
+              <div className="bg-surface-1 rounded-2xl border border-border-hairline p-6 space-y-4 lg:col-span-2">
+                <div className="border-b border-border-hairline pb-3">
+                  <h4 className="font-serif text-base text-text-main">5. Biz haqimizda & Showroom (Brand Story)</h4>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Badj</label>
+                    <input
+                      type="text"
+                      value={editingContent.brand_story?.badge || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          brand_story: { ...editingContent.brand_story, badge: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Sarlavha (boshlanishi)</label>
+                    <input
+                      type="text"
+                      value={editingContent.brand_story?.title || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          brand_story: { ...editingContent.brand_story, title: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-gold-primary block mb-1">Kursiv So‘z</label>
+                    <input
+                      type="text"
+                      value={editingContent.brand_story?.title_highlight || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          brand_story: { ...editingContent.brand_story, title_highlight: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-gold-primary/60 outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">
+                    Asosiy Falsafa Matni
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={editingContent.brand_story?.description || ''}
+                    onChange={(e) =>
+                      setEditingContent({
+                        ...editingContent,
+                        brand_story: { ...editingContent.brand_story, description: e.target.value },
+                      })
+                    }
+                    className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Showroom Nomi</label>
+                    <input
+                      type="text"
+                      value={editingContent.brand_story?.showroom_name || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          brand_story: { ...editingContent.brand_story, showroom_name: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Showroom Manzili</label>
+                    <input
+                      type="text"
+                      value={editingContent.brand_story?.showroom_address || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          brand_story: { ...editingContent.brand_story, showroom_address: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Google Maps Havolasi</label>
+                    <input
+                      type="url"
+                      value={editingContent.brand_story?.maps_url || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          brand_story: { ...editingContent.brand_story, maps_url: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 6. ALOQA VA FOOTER */}
+              <div className="bg-surface-1 rounded-2xl border border-border-hairline p-6 space-y-4 lg:col-span-2">
+                <div className="border-b border-border-hairline pb-3">
+                  <h4 className="font-serif text-base text-text-main">6. Aloqa & Ijtimoiy Tarmoqlar</h4>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Telefon</label>
+                    <input
+                      type="text"
+                      value={editingContent.contacts?.phone || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          contacts: { ...editingContent.contacts, phone: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Telegram Havolasi</label>
+                    <input
+                      type="url"
+                      value={editingContent.contacts?.telegram || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          contacts: { ...editingContent.contacts, telegram: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Instagram Havolasi</label>
+                    <input
+                      type="url"
+                      value={editingContent.contacts?.instagram || ''}
+                      onChange={(e) =>
+                        setEditingContent({
+                          ...editingContent,
+                          contacts: { ...editingContent.contacts, instagram: e.target.value },
+                        })
+                      }
+                      className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">Footer Shiori</label>
+                  <input
+                    type="text"
+                    value={editingContent.contacts?.footer_slogan || ''}
+                    onChange={(e) =>
+                      setEditingContent({
+                        ...editingContent,
+                        contacts: { ...editingContent.contacts, footer_slogan: e.target.value },
+                      })
+                    }
+                    className="w-full bg-surface-2 text-text-main text-xs px-3 py-2 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}

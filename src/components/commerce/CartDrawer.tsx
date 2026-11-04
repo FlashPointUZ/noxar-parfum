@@ -90,8 +90,12 @@ export const CartDrawer: React.FC = () => {
                 className="p-4 rounded-xl bg-surface-2/60 border border-border-hairline flex items-center gap-4"
               >
                 {/* Rasm yoki BottleArt */}
-                <div className="w-16 h-20 bg-surface-1 rounded-lg border border-border-hairline flex items-center justify-center flex-shrink-0">
-                  <BottleArt art={item.art} size="sm" className="scale-75" />
+                <div className="w-16 h-20 bg-surface-1 rounded-lg border border-border-hairline flex items-center justify-center flex-shrink-0 overflow-hidden p-1">
+                  {item.image ? (
+                    <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                  ) : (
+                    <BottleArt art={item.art} size="sm" className="scale-75" />
+                  )}
                 </div>
 
                 {/* Tafsilot */}

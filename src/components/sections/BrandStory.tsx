@@ -2,11 +2,15 @@
 
 import React from 'react';
 import { MapPin, ShieldCheck, Sparkles, RefreshCw } from 'lucide-react';
+import { useSiteContentStore } from '@/store/useSiteContentStore';
 
 export const BrandStory: React.FC = () => {
+  const { content } = useSiteContentStore();
+  const story = content.brand_story;
+
   const openMaps = () => {
     window.open(
-      'https://www.google.com/maps/search/?api=1&query=Bekbaraka+bozori+12-qator+2-blok+472-magazin',
+      story.maps_url || 'https://www.google.com/maps/search/?api=1&query=Bekbaraka+bozori+12-qator+2-blok+472-magazin',
       '_blank',
       'noopener,noreferrer'
     );
@@ -24,10 +28,10 @@ export const BrandStory: React.FC = () => {
 
             <div className="space-y-4 my-8">
               <span className="text-[10px] uppercase tracking-[0.25em] text-gold-primary block font-medium">
-                Toshkent, O‘zbekiston
+                {story.city_country || 'Toshkent, O‘zbekiston'}
               </span>
               <h3 className="font-serif text-2xl sm:text-3xl font-normal text-text-main leading-snug">
-                Haqiqiy parfyumeriya san’ati va beqiyos his-tuyg‘ular.
+                {story.card_title || 'Haqiqiy parfyumeriya san’ati va beqiyos his-tuyg‘ular.'}
               </h3>
             </div>
 
@@ -39,7 +43,7 @@ export const BrandStory: React.FC = () => {
                 className="text-gold-primary hover:text-gold-light inline-flex items-center gap-1 font-medium"
               >
                 <MapPin className="w-3.5 h-3.5" />
-                <span>Bekbaraka, 472-do‘kon</span>
+                <span>{story.showroom_name || 'Bekbaraka, 472-do‘kon'}</span>
               </button>
             </div>
           </div>
@@ -47,16 +51,16 @@ export const BrandStory: React.FC = () => {
           {/* O'ng tomon: Brend Falsafasi va Afzalliklari */}
           <div className="lg:col-span-7 space-y-8">
             <div>
-              <span className="text-[10px] uppercase tracking-[0.25em] text-gold-primary block mb-2 font-medium">
-                Bizning Falsafamiz
-              </span>
+              {story.badge && (
+                <span className="text-[10px] uppercase tracking-[0.25em] text-gold-primary block mb-2 font-medium">
+                  {story.badge}
+                </span>
+              )}
               <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-text-main leading-tight">
-                Har bir inson o‘z <span className="italic text-gold-light">izini</span> qoldiradi.
+                {story.title} <span className="italic text-gold-light">{story.title_highlight}</span> {story.title_line2}
               </h2>
               <p className="text-text-muted text-sm sm:text-base leading-relaxed mt-4 font-light max-w-xl">
-                NOXAR PARFUM — bu shunchaki atir do‘koni emas. Bu o‘ziga xoslik, jasorat va nafosat timsoli bo‘lgan
-                tanlangan hidlar maskanidir. Biz har bir notani ehtiyotkorlik bilan tanlaymiz, toki siz xonaga
-                kirganingizda ham, ketganingizdan keyin ham xotiralar siz haqingizda so‘zlasin.
+                {story.description}
               </p>
             </div>
 
@@ -76,8 +80,8 @@ export const BrandStory: React.FC = () => {
 
               <div className="p-4 rounded-xl bg-surface-1 border border-border-hairline">
                 <RefreshCw className="w-5 h-5 text-gold-primary mb-2" />
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-text-main">14 Kun Qaytarish</h4>
-                <p className="text-[11px] text-text-muted mt-1">Shartlar asosida xavfsiz va ishonchli xarid</p>
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-text-main">Tez Yetkazish</h4>
+                <p className="text-[11px] text-text-muted mt-1">O‘zbekiston bo‘ylab ishonchli pochta xizmati</p>
               </div>
             </div>
           </div>
