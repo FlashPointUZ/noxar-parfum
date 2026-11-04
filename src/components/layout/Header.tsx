@@ -5,13 +5,15 @@ import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { useUIStore } from '@/store/useUIStore';
 import { useThemeStore } from '@/store/useThemeStore';
-import { Search, Heart, ShoppingBag, Sun, Moon, MapPin } from 'lucide-react';
+import { useAuthStore } from '@/store/useAuthStore';
+import { Search, Heart, ShoppingBag, Sun, Moon, MapPin, User } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const { items } = useCartStore();
   const { items: wishlist } = useWishlistStore();
-  const { setCartOpen, setWishlistOpen, setSearchOpen } = useUIStore();
+  const { setCartOpen, setWishlistOpen, setSearchOpen, setAuthOpen } = useUIStore();
   const { theme, toggleTheme } = useThemeStore();
+  const { user } = useAuthStore();
 
   const totalCartCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -104,6 +106,21 @@ export const Header: React.FC = () => {
                 {wishlist.length}
               </span>
             )}
+          </button>
+
+          {/* User Auth / Kabinet */}
+          <button
+            type="button"
+            onClick={() => setAuthOpen(true)}
+            className={`p-2 rounded-full border transition-all ${
+              user
+                ? 'border-gold-primary bg-gold-primary/10 text-gold-primary'
+                : 'border-border-hairline text-text-muted hover:text-gold-primary hover:bg-surface-2'
+            }`}
+            aria-label="Foydalanuvchi kabineti"
+            title={user ? `${user.fullName} kabineti` : 'Kirish / Ro‘yxatdan o‘tish'}
+          >
+            <User className="w-4 h-4" />
           </button>
 
           {/* Savat */}

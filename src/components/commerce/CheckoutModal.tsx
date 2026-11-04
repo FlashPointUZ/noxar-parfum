@@ -1,15 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCartStore } from '@/store/useCartStore';
 import { useUIStore } from '@/store/useUIStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { formatPrice, generateOrderNumber } from '@/lib/utils';
 import { supabase } from '@/lib/supabase/client';
-import { X, CheckCircle2, ShieldCheck, Truck, CreditCard } from 'lucide-react';
+import { antiBot } from '@/lib/rateLimit';
+import { X, CheckCircle2, ShieldCheck, Truck, CreditCard, ShieldAlert } from 'lucide-react';
 
 export const CheckoutModal: React.FC = () => {
   const { items, getTotals, clearCart } = useCartStore();
   const { isCheckoutOpen, setCheckoutOpen } = useUIStore();
+  const { user } = useAuthStore();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('+998 ');
@@ -17,7 +20,23 @@ export const CheckoutModal: React.FC = () => {
   const [shippingMethod, setShippingMethod] = useState<'standart' | 'express' | 'pickup'>('standart');
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'payme'>('cash');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [orderConfirmed, setOrderConfirmed] = useState<string | null>(null);
+
+  // Botlarga qarshi Honeypot va ochilish vaqti
+  const [honeypot, setHoneypot] = useState('');
+  const [formOpenTime, setFormOpenTime] = useState<number>(Date.now());
+
+  useEffect(() => {
+    if (isCheckoutOpen) {
+      setFormOpenTime(Date.now());
+      setErrorMessage('');
+      if (user) {
+        if (user.fullName) setFullName(user.fullName);
+        if (user.phone) setPhone(user.phone);
+      }
+    }
+  }, [isCheckoutOpen, user]);
 
   if (!isCheckoutOpen) return null;
 
@@ -25,6 +44,27 @@ export const CheckoutModal: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage('');
+
+    // 1. Bot Honeypot tekshiruvi
+    if (!antiBot.checkHoneypot(honeypot)) {
+      setErrorMessage('Xavfsizlik tekshiruvidan o‘tmadiniz.');
+      return;
+    }
+
+    // 2. Juda tez yuborish (Speed test)
+    if (!antiBot.checkSubmissionSpeed(formOpenTime, 1.5)) {
+      setErrorMessage('Iltimos, ma’lumotlarni to‘g‘ri to‘ldiring.');
+      return;
+    }
+
+    // 3. Rate Limit / Cooldown (har 15 soniyada faqat 1 ta buyurtma)
+    const rateCheck = antiBot.checkRateLimit('checkout_order', 15);
+    if (!rateCheck.allowed) {
+      setErrorMessage(`Iltimos, ${rateCheck.remainingSeconds} soniya kuting va qayta urinib ko‘ring.`);
+      return;
+    }
+
     setLoading(true);
 
     const orderNumber = generateOrderNumber();
@@ -111,7 +151,26 @@ export const CheckoutModal: React.FC = () => {
               <h2 className="font-serif text-2xl text-text-main">Buyurtma berish</h2>
             </div>
 
+            {errorMessage && (
+              <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 flex-shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* BOT HONEYPOT: Inson ko'rmaydi, botlar esa to'ldiradi */}
+              <div style={{ display: 'none' }} aria-hidden="true">
+                <input
+                  type="text"
+                  name="checkout_honeypot_field"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">

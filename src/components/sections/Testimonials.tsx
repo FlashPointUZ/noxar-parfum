@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, Send, CheckCircle2 } from 'lucide-react';
+import { Star, Send, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
+import { antiBot } from '@/lib/rateLimit';
 
 export const Testimonials: React.FC = () => {
   const [reviews, setReviews] = useState([
@@ -32,11 +33,28 @@ export const Testimonials: React.FC = () => {
   const [name, setName] = useState('');
   const [rating, setRating] = useState(5);
   const [text, setText] = useState('');
+  const [honeypot, setHoneypot] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage('');
+
     if (!name.trim() || !text.trim()) return;
+
+    // 1. Honeypot tekshiruvi
+    if (!antiBot.checkHoneypot(honeypot)) {
+      setErrorMessage('Xavfsizlik tekshiruvidan o‘tmadiniz.');
+      return;
+    }
+
+    // 2. Rate Limit (har 20 soniyada faqat 1 ta sharh)
+    const rateCheck = antiBot.checkRateLimit('submit_review', 20);
+    if (!rateCheck.allowed) {
+      setErrorMessage(`Iltimos, ${rateCheck.remainingSeconds} soniya kuting.`);
+      return;
+    }
 
     try {
       await supabase.from('reviews').insert({
@@ -106,6 +124,13 @@ export const Testimonials: React.FC = () => {
           <h3 className="font-serif text-xl text-text-main mb-1">O‘z fikringizni qoldiring</h3>
           <p className="text-xs text-text-muted mb-6">Sizning tajribangiz boshqalar uchun juda muhim.</p>
 
+          {errorMessage && (
+            <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 flex-shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
           {submitted ? (
             <div className="p-4 rounded-xl bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
@@ -113,6 +138,18 @@ export const Testimonials: React.FC = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* BOT HONEYPOT */}
+              <div style={{ display: 'none' }} aria-hidden="true">
+                <input
+                  type="text"
+                  name="review_honeypot_bot"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-[11px] uppercase tracking-wider text-text-muted block mb-1">

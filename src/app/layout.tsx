@@ -10,6 +10,7 @@ import { WishlistDrawer } from '@/components/commerce/WishlistDrawer';
 import { ProductModal } from '@/components/commerce/ProductModal';
 import { CheckoutModal } from '@/components/commerce/CheckoutModal';
 import { SearchModal } from '@/components/commerce/SearchModal';
+import { AuthModal } from '@/components/auth/AuthModal';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -80,6 +81,7 @@ export default function RootLayout({
         <ProductModal />
         <CheckoutModal />
         <SearchModal />
+        <AuthModal />
       </body>
     </html>
   );

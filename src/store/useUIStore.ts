@@ -7,6 +7,7 @@ interface UIState {
   isSearchOpen: boolean;
   isCheckoutOpen: boolean;
   isTrackOpen: boolean;
+  isAuthOpen: boolean;
   selectedProduct: Product | null;
 
   setCartOpen: (open: boolean) => void;
@@ -14,6 +15,7 @@ interface UIState {
   setSearchOpen: (open: boolean) => void;
   setCheckoutOpen: (open: boolean) => void;
   setTrackOpen: (open: boolean) => void;
+  setAuthOpen: (open: boolean) => void;
   setSelectedProduct: (product: Product | null) => void;
 }
 
@@ -23,6 +25,7 @@ export const useUIStore = create<UIState>((set) => ({
   isSearchOpen: false,
   isCheckoutOpen: false,
   isTrackOpen: false,
+  isAuthOpen: false,
   selectedProduct: null,
 
   setCartOpen: (open) => set({ isCartOpen: open }),
@@ -30,5 +33,6 @@ export const useUIStore = create<UIState>((set) => ({
   setSearchOpen: (open) => set({ isSearchOpen: open }),
   setCheckoutOpen: (open) => set({ isCheckoutOpen: open }),
   setTrackOpen: (open) => set({ isTrackOpen: open }),
+  setAuthOpen: (open) => set({ isAuthOpen: open }),
   setSelectedProduct: (product) => set({ selectedProduct: product }),
 }));
