@@ -493,15 +493,11 @@ applyActiveCampaign();
 loadSupabaseProducts();
 
 function renderSearchResults(query) {
+  const results = document.querySelector('.search-results');
+  if (!results) return;
   const normalizedQuery = query.trim().toLowerCase();
   if (!normalizedQuery) {
-    const popular = allProducts.slice().sort((a, b) => b.popularity - a.popularity).slice(0, 4);
-    results.innerHTML = `<span class="search-label">Mashhur qidiruvlar</span>${popular.map((product) => `
-      <button class="search-result" data-product-id="${product.id}">
-        <span class="search-result-art ${product.art}"><b>N</b></span>
-        <span><strong>${product.name}</strong><small>${product.brand} · ${product.price}</small></span>
-        <span class="search-arrow">↗</span>
-      </button>`).join('')}`;
+    results.innerHTML = '';
     return;
   }
   const matches = allProducts.filter((product) => (
@@ -613,6 +609,7 @@ document.querySelectorAll('[data-department]').forEach((button) => button.addEve
 document.querySelectorAll('[data-mobile-nav]').forEach((button) => button.addEventListener('click', () => {
   const action = button.dataset.mobileNav;
   if (action === 'home') openMarketRoute('home');
+  if (action === 'search') return;
   if (action === 'catalog') { openMarketRoute('home'); document.querySelectorAll('[data-mobile-nav]').forEach((item) => item.classList.toggle('active', item === button)); document.querySelector('#catalog').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   if (['cart', 'quick', 'card', 'account'].includes(action)) openMarketRoute(action);
 }));
@@ -1128,16 +1125,17 @@ function closeAccount() {
 }
 
 document.querySelector('.account-button').addEventListener('click', openAccount);
-document.querySelector('.inline-link').addEventListener('click', openTracking);
+document.querySelector('.inline-link')?.addEventListener('click', openTracking);
 accountPanel.querySelectorAll('[data-close-account]').forEach((element) => element.addEventListener('click', closeAccount));
 trackModal.querySelectorAll('[data-close-track]').forEach((element) => element.addEventListener('click', closeTracking));
-document.querySelector('.logout-button').addEventListener('click', () => {
-  const user = getCurrentUser();
-  if (user) {
-    user.loggedIn = false;
-    localStorage.setItem('noxar-account', JSON.stringify(user));
+document.querySelector('.logout-button').addEventListener('click', async () => {
+  try {
+    await window.noxarAuth.signOut();
+  } finally {
+    localStorage.removeItem('noxar-account');
+    updateAccountDashboard();
+    showToast('Tizimdan chiqdingiz');
   }
-  updateAccountDashboard();
 });
 document.querySelectorAll('.toggle-setting').forEach((button) => {
   button.addEventListener('click', () => {
@@ -1157,40 +1155,63 @@ accountTabs.forEach((tab) => {
   });
 });
 
-document.querySelector('[data-form="login"]').addEventListener('submit', (event) => {
+document.querySelector('[data-form="login"]').addEventListener('submit', async (event) => {
   event.preventDefault();
+  const button = event.currentTarget.querySelector('button[type="submit"]');
   const formData = new FormData(event.currentTarget);
-  const email = String(formData.get('email') || '').trim();
+  const email = String(formData.get('email') || '').trim().toLowerCase();
   const password = String(formData.get('password') || '').trim();
-  const user = getCurrentUser();
+  button.disabled = true;
 
-  if (!user || user.email !== email || user.password !== password) {
-    showToast('Email yoki parol noto‘g‘ri');
-    return;
+  try {
+    await window.noxarAuth.signIn(email, password);
+    const authUser = await window.noxarAuth.getUser();
+    const { data: profile } = await window.noxarSupabase.from('profiles').select('*').eq('id', authUser.id);
+    const row = profile?.[0];
+    localStorage.setItem('noxar-account', JSON.stringify({
+      id: authUser.id,
+      name: row?.name || authUser.user_metadata?.name || email.split('@')[0],
+      email,
+      loggedIn: true
+    }));
+    updateAccountDashboard();
+    showToast('Kabinetga kirish muvaffaqiyatli');
+  } catch (error) {
+    showToast(error.message || 'Email yoki parol noto‘g‘ri');
+  } finally {
+    button.disabled = false;
   }
-
-  user.loggedIn = true;
-  localStorage.setItem('noxar-account', JSON.stringify(user));
-  updateAccountDashboard();
-  showToast('Kabinetga kirish muvaffaqiyatli');
 });
 
-document.querySelector('[data-form="register"]').addEventListener('submit', (event) => {
+document.querySelector('[data-form="register"]').addEventListener('submit', async (event) => {
+  event.preventEvent?.();
   event.preventDefault();
+  const button = event.currentTarget.querySelector('button[type="submit"]');
   const formData = new FormData(event.currentTarget);
   const name = String(formData.get('name') || '').trim();
-  const email = String(formData.get('email') || '').trim();
+  const email = String(formData.get('email') || '').trim().toLowerCase();
   const password = String(formData.get('password') || '').trim();
 
-  if (!name || !email || password.length < 6) {
-    showToast('Ma‘lumotlarni to‘g‘ri kiriting');
+  if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || password.length < 6) {
+    showToast('Ism, email yoki parol noto‘g‘ri');
     return;
   }
 
-  const user = { name, email, password, loggedIn: true };
-  localStorage.setItem('noxar-account', JSON.stringify(user));
-  updateAccountDashboard();
-  showToast('Ro‘yxatdan o‘tish muvaffaqiyatli');
+  button.disabled = true;
+  try {
+    const result = await window.noxarAuth.signUp(email, password, name);
+    if (!result?.access_token) {
+      showToast('Ro‘yxatdan o‘tildi. Email manzilingizni tasdiqlang.');
+      return;
+    }
+    localStorage.setItem('noxar-account', JSON.stringify({ id: result.user?.id, name, email, loggedIn: true }));
+    updateAccountDashboard();
+    showToast('Ro‘yxatdan o‘tish muvaffaqiyatli');
+  } catch (error) {
+    showToast(error.message || 'Ro‘yxatdan o‘tish amalga oshmadi');
+  } finally {
+    button.disabled = false;
+  }
 });
 
 document.querySelector('.track-form').addEventListener('submit', (event) => {
@@ -1340,14 +1361,41 @@ const searchPanel = document.querySelector('.search-panel');
 const searchInput = document.querySelector('#search-input');
 const searchToggle = document.querySelector('.search-toggle');
 const results = document.querySelector('.search-results');
-searchToggle.addEventListener('click', () => {
+
+searchToggle?.addEventListener('click', () => {
   searchPanel.classList.toggle('active');
   if (searchPanel.classList.contains('active')) searchInput.focus();
 });
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') searchPanel.classList.remove('active');
+
+document.querySelectorAll('[data-mobile-nav="search"]').forEach((button) => {
+  button.addEventListener('click', () => {
+    searchPanel.classList.toggle('active');
+    if (searchPanel.classList.contains('active')) searchInput.focus();
+  });
 });
-searchInput.addEventListener('input', () => renderSearchResults(searchInput.value));
+
+const closeSearch = () => {
+  searchPanel.classList.remove('active');
+  searchInput.value = '';
+  results.innerHTML = '';
+};
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closeSearch();
+});
+
+document.addEventListener('click', (event) => {
+  if (!searchPanel.contains(event.target) && !searchToggle?.contains(event.target) && !event.target.closest('[data-mobile-nav="search"]')) closeSearch();
+});
+
+searchInput.addEventListener('input', () => {
+  const value = searchInput.value;
+  searchPanel.classList.toggle('active', value.trim().length > 0);
+  renderSearchResults(value);
+});
+searchInput.addEventListener('blur', () => {
+  if (!searchInput.value.trim()) closeSearch();
+});
 results.addEventListener('click', (event) => {
   const result = event.target.closest('.search-result');
   if (!result) return;
@@ -1374,16 +1422,57 @@ document.querySelector('.contact-form')?.addEventListener('submit', (event) => {
   event.currentTarget.querySelector('.form-status').textContent = 'Xabaringiz qabul qilindi. Tez orada bog‘lanamiz.';
 });
 
-document.querySelector('.newsletter-form').addEventListener('submit', (event) => {
+document.querySelector('.newsletter-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
-  const email = form.querySelector('input').value.trim();
+  const input = form.querySelector('input[type="email"]');
+  const button = form.querySelector('button[type="submit"]');
   const status = form.querySelector('.newsletter-status');
-  if (!email) return;
-  localStorage.setItem('noxar-newsletter', email);
-  status.textContent = 'Obuna muvaffaqiyatli yakunlandi. Rahmat!';
-  form.querySelector('input').value = '';
-  showToast('NOXAR yangiliklariga obuna bo‘ldingiz');
+  const email = input.value.trim().toLowerCase();
+
+  status.classList.remove('error', 'success');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    status.classList.add('error');
+    status.textContent = 'Iltimos, to‘g‘ri email manzil kiriting.';
+    input.focus();
+    return;
+  }
+
+  button.disabled = true;
+  button.setAttribute('aria-busy', 'true');
+  status.textContent = 'Obuna tekshirilmoqda...';
+
+  try {
+    const existing = await noxarSupabase
+      .from('newsletter_subscribers')
+      .select('email')
+      .eq('email', email);
+
+    if (existing?.data?.length) {
+      status.classList.add('success');
+      status.textContent = 'Bu email allaqachon obuna bo‘lgan.';
+      showToast('Bu email allaqachon obunada');
+      return;
+    }
+
+    await noxarSupabase.from('newsletter_subscribers').insert({
+      email,
+      subscribed_at: new Date().toISOString(),
+      active: true
+    });
+
+    localStorage.setItem('noxar-newsletter', email);
+    status.classList.add('success');
+    status.textContent = 'Obuna muvaffaqiyatli yakunlandi. Rahmat!';
+    input.value = '';
+    showToast('NOXAR yangiliklariga obuna bo‘ldingiz');
+  } catch (error) {
+    status.classList.add('error');
+    status.textContent = error?.message || 'Obuna amalga oshmadi. Keyinroq urinib ko‘ring.';
+  } finally {
+    button.disabled = false;
+    button.removeAttribute('aria-busy');
+  }
 });
 
 const track = document.querySelector('.testimonial-track');

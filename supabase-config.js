@@ -83,6 +83,17 @@ const noxarAuth = {
       return null;
     }
   },
+  async signUp(email, password, name) {
+    const response = await fetch(`${NOXAR_SUPABASE_URL}/auth/v1/signup`, {
+      method: 'POST',
+      headers: { apikey: NOXAR_SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, data: { name } })
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(data?.error_description || data?.msg || 'Ro‘yxatdan o‘tish amalga oshmadi');
+    if (data?.access_token) localStorage.setItem(NOXAR_AUTH_STORAGE, JSON.stringify(data));
+    return data;
+  },
   async signIn(email, password) {
     const response = await fetch(`${NOXAR_SUPABASE_URL}/auth/v1/token?grant_type=password`, {
       method: 'POST',
@@ -106,6 +117,26 @@ const noxarAuth = {
       throw new Error(data?.error_description || 'Admin sessiyasi tugagan. Qayta kiring.');
     }
     localStorage.setItem(NOXAR_AUTH_STORAGE, JSON.stringify(data));
+    return data;
+  },
+  async getUser() {
+    const session = this.readSession();
+    if (!session?.access_token) return null;
+    const response = await fetch(`${NOXAR_SUPABASE_URL}/auth/v1/user`, {
+      headers: { apikey: NOXAR_SUPABASE_KEY, Authorization: `Bearer ${session.access_token}` }
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(data?.error_description || 'Foydalanuvchi ma’lumotini olishda xatolik');
+    return data;
+  },
+  async resetPassword(email) {
+    const response = await fetch(`${NOXAR_SUPABASE_URL}/auth/v1/recover`, {
+      method: 'POST',
+      headers: { apikey: NOXAR_SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(data?.error_description || data?.msg || 'Parolni tiklash xati yuborilmadi');
     return data;
   },
   async signOut() {
