@@ -161,3 +161,20 @@ Ushbu reja **NOXAR PARFUM** loyihasini **Nutlope/hallmark** anti-AI-slop dizayn 
   - Mahsulotlar jadvalida har bir mahsulotning rasmi ko‘rsatiladi.
 - [x] **10.7. Build va Eksport Sinovi**:
   - `npm run build` muvaffaqiyatli o‘tdi (kod 0), barcha sahifalar to‘liq statik HTML/JS ko‘rinishida eksport qilindi.
+
+---
+
+## 📱 11-BOSQICH: Mobile UX, Navigatsiya Dublikatini Yo‘qotish va Filtrlar Moslashuvi
+
+- [x] **11.1. Header va Pastki Navigatsiya Dublikatini Tozalash (`Header.tsx` & `MobileBottomNav.tsx`)**:
+  - Mobile ekranlarda (`< md`) tepadagi Headerdan Savat, Sevimlilar va Profil tugmalari yashirildi (`hidden md:flex`).
+  - Endi tepadagi Header faqat Brend Logotipi, Dark/Light Mode tugmasi va Qidiruv tugmasini ko‘rsatadi.
+  - Barcha asosiy amallar (Bosh sahifa, Katalog, Savat, Sevimlilar, Kirish/Kabinet) faqat pastki `MobileBottomNav` orqali qulay va tartibli boshqariladi (dublikat to‘liq bartaraf etildi).
+- [x] **11.2. Katalog Filtrlarini Moslashtirish (`CatalogSection.tsx`)**:
+  - Jins tugmalari (`Barchasi`, `Ayollar`, `Erkaklar`, `Uniseks`) 320px–375px mobil ekranlarda qisilib "Un..." bo‘lib kesilib ketishining oldi olindi (`grid grid-cols-4 sm:flex gap-1 sm:gap-1.5 w-full sm:w-auto`).
+  - Saralash dropdowni pastki qatorda alohida toza chiziq va to‘liq kenglik bilan ajratildi.
+- [x] **11.3. E'lon Qatori (AnnouncementBar) Moslashuvchanligi**:
+  - Qat'iy `h-8` o‘rniga `min-h-[28px] sm:h-8 py-1.5 sm:py-0` berildi va harf oraliqlari mobil qurilmalarga moslashtirildi (`tracking-wider sm:tracking-[0.2em]`).
+  - Matn hech qachon boshqa qismlarga tegib ketmaydi va chiroyli markazlashgan holda ko‘rinadi.
+- [x] **11.4. Build va Sinov**:
+  - `npm run build` to‘liq xatolarsiz 0 kodi bilan yakunlandi, barcha 5 ta statik sahifa muvaffaqiyatli hosil qilindi.
