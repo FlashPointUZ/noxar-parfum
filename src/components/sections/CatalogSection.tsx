@@ -81,17 +81,17 @@ export const CatalogSection: React.FC = () => {
     return 0;
   });
 
-  // To'liq kengaytirilgan kategoriyalar
+  // To'liq kengaytirilgan kategoriyalar (Hallmark toza tipografik tugmalar)
   const departments = [
-    { id: 'all', label: 'Barchasi', icon: '✦' },
-    { id: 'atirlar', label: 'Atirlar', icon: '♢' },
-    { id: 'body-fragrance', label: 'Tana parvarishi', icon: '♡' },
-    { id: 'deodorants', label: 'Dezodorant', icon: '◉' },
-    { id: 'perfume-oils', label: 'Parfyum moylari', icon: '◌' },
-    { id: 'home-fragrance', label: 'Uy aromati', icon: '⌂' },
-    { id: 'bath-shower', label: 'Dush & vanna', icon: '≋' },
-    { id: 'accessories', label: 'Aksessuarlar', icon: '◇' },
-    { id: 'gift-sets', label: 'Sovg‘a to‘plamlari', icon: '🎁' },
+    { id: 'all', label: 'Barchasi' },
+    { id: 'atirlar', label: 'Atirlar' },
+    { id: 'body-fragrance', label: 'Tana parvarishi' },
+    { id: 'deodorants', label: 'Dezodorantlar' },
+    { id: 'perfume-oils', label: 'Parfyum moylari' },
+    { id: 'home-fragrance', label: 'Uy aromatlari' },
+    { id: 'bath-shower', label: 'Dush & vanna' },
+    { id: 'accessories', label: 'Aksessuarlar' },
+    { id: 'gift-sets', label: 'Sovg‘a to‘plamlari' },
   ];
 
   return (
@@ -113,20 +113,19 @@ export const CatalogSection: React.FC = () => {
         </div>
 
         {/* Bo'limlar Navigatsiyasi (Scrollable on Mobile) */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 pt-1 no-scrollbar border-b border-border-hairline mb-8">
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 pt-1 no-scrollbar border-b border-border-hairline mb-8">
           {departments.map((dept) => (
             <button
               key={dept.id}
               type="button"
               onClick={() => setSelectedDept(dept.id)}
-              className={`px-4 py-2 rounded-full text-xs uppercase tracking-wider font-medium whitespace-nowrap transition-all flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-full text-xs uppercase tracking-wider font-medium whitespace-nowrap transition-all ${
                 selectedDept === dept.id
                   ? 'bg-gold-primary text-black font-semibold shadow-sm'
                   : 'bg-surface-1 border border-border-hairline text-text-muted hover:text-text-main hover:border-gold-primary/30'
               }`}
             >
-              <span className="text-[10px] opacity-80">{dept.icon}</span>
-              <span>{dept.label}</span>
+              {dept.label}
             </button>
           ))}
         </div>

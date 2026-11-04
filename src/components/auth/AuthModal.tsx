@@ -100,7 +100,7 @@ export const AuthModal: React.FC = () => {
       <div onClick={() => setAuthOpen(false)} className="fixed inset-0 bg-black/70 backdrop-blur-sm" />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-md bg-surface-1 rounded-2xl border border-border-hairline p-6 sm:p-8 z-10 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-md bg-surface-1 rounded-2xl border border-border-hairline p-5 sm:p-8 z-10 shadow-2xl max-h-[90vh] overflow-y-auto">
         <button
           type="button"
           onClick={() => setAuthOpen(false)}
@@ -262,7 +262,7 @@ export const AuthModal: React.FC = () => {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="demo@noxar.com"
+                      placeholder="Elektron pochta manzili"
                       className="w-full bg-surface-2 text-text-main text-xs pl-9 pr-3 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
                     />
                   </div>
@@ -279,7 +279,7 @@ export const AuthModal: React.FC = () => {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
+                      placeholder="Parol"
                       className="w-full bg-surface-2 text-text-main text-xs pl-9 pr-3 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
                     />
                   </div>
@@ -318,7 +318,7 @@ export const AuthModal: React.FC = () => {
                       required
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      placeholder="Sardor Alimov"
+                      placeholder="Ism va familiyangiz"
                       className="w-full bg-surface-2 text-text-main text-xs pl-9 pr-3 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
                     />
                   </div>
@@ -335,7 +335,7 @@ export const AuthModal: React.FC = () => {
                       required
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+998 90 123 45 67"
+                      placeholder="+998 __ ___ __ __"
                       className="w-full bg-surface-2 text-text-main text-xs pl-9 pr-3 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
                     />
                   </div>
@@ -352,7 +352,7 @@ export const AuthModal: React.FC = () => {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="nomi@example.com"
+                      placeholder="Elektron pochta manzili"
                       className="w-full bg-surface-2 text-text-main text-xs pl-9 pr-3 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
                     />
                   </div>
@@ -370,7 +370,7 @@ export const AuthModal: React.FC = () => {
                       minLength={6}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
+                      placeholder="Parol (kamida 6 ta belgi)"
                       className="w-full bg-surface-2 text-text-main text-xs pl-9 pr-3 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
                     />
                   </div>

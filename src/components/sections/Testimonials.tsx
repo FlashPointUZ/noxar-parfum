@@ -160,7 +160,7 @@ export const Testimonials: React.FC = () => {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Masalan: Sardor"
+                    placeholder="Ismingiz"
                     className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary transition-all"
                   />
                 </div>
@@ -189,7 +189,7 @@ export const Testimonials: React.FC = () => {
                   rows={3}
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  placeholder="Atirning ochilishi va saqlanishi haqida yozing..."
+                  placeholder="Fikringizni qoldiring..."
                   className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary transition-all resize-none"
                 />
               </div>

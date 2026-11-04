@@ -5,7 +5,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { useUIStore } from '@/store/useUIStore';
 import { BottleArt } from '@/components/ui/BottleArt';
 import { formatPrice } from '@/lib/utils';
-import { X, Plus, Minus, Trash2, ArrowRight, ShoppingBag, Tag } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ArrowRight, ShoppingBag, Tag, Check } from 'lucide-react';
 
 export const CartDrawer: React.FC = () => {
   const { items, updateQuantity, removeItem, promo, applyPromo, getTotals } = useCartStore();
@@ -150,7 +150,7 @@ export const CartDrawer: React.FC = () => {
                     type="text"
                     value={promoCodeInput}
                     onChange={(e) => setPromoCodeInput(e.target.value)}
-                    placeholder="Promo-kod (NOXAR10)"
+                    placeholder="Promo-kod"
                     className="w-full bg-surface-2 text-text-main text-xs pl-8 pr-3 py-2 rounded-lg border border-border-hairline outline-none focus:border-gold-primary uppercase tracking-wider"
                   />
                 </div>
@@ -163,8 +163,11 @@ export const CartDrawer: React.FC = () => {
               </div>
               {promo && (
                 <div className="text-[11px] text-green-500 flex items-center justify-between">
-                  <span>✓ Promo-kod faol: {promo.code}</span>
-                  <button type="button" onClick={() => applyPromo(null)} className="underline text-text-muted">
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <Check className="w-3.5 h-3.5 text-green-500" />
+                    <span>Promo-kod faol: {promo.code}</span>
+                  </span>
+                  <button type="button" onClick={() => applyPromo(null)} className="underline text-text-muted hover:text-red-400">
                     Bekor qilish
                   </button>
                 </div>

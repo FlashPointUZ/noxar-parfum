@@ -107,7 +107,7 @@ export const CheckoutModal: React.FC = () => {
       <div onClick={handleClose} className="fixed inset-0 bg-black/65 backdrop-blur-sm" />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-xl bg-surface-1 rounded-2xl border border-border-hairline p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="relative w-full max-w-xl bg-surface-1 rounded-2xl border border-border-hairline p-5 sm:p-8 z-10 max-h-[90vh] overflow-y-auto shadow-2xl">
         <button
           type="button"
           onClick={handleClose}
@@ -181,7 +181,7 @@ export const CheckoutModal: React.FC = () => {
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Sardor Alimov"
+                    placeholder="Ism va familiyangiz"
                     className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
                   />
                 </div>
@@ -194,7 +194,7 @@ export const CheckoutModal: React.FC = () => {
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+998 90 123 45 67"
+                    placeholder="+998 __ ___ __ __"
                     className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
                   />
                 </div>

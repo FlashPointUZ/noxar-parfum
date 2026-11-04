@@ -332,7 +332,7 @@ export default function AdminPage() {
                 required
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="Admin email (cazizbek540@gmail.com)"
+                placeholder="Elektron pochta manzili"
                 className="w-full bg-surface-2 text-text-main text-xs px-4 py-3 rounded-xl border border-border-hairline outline-none focus:border-gold-primary transition-all text-center"
               />
             </div>
@@ -343,7 +343,7 @@ export default function AdminPage() {
                 required
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
-                placeholder="Supabase paroli"
+                placeholder="Parol"
                 className="w-full bg-surface-2 text-text-main text-xs px-4 py-3 rounded-xl border border-border-hairline outline-none focus:border-gold-primary transition-all text-center tracking-widest"
               />
             </div>
@@ -453,26 +453,26 @@ export default function AdminPage() {
         {/* 1. DASHBOARD VIEW */}
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
-              <div className="p-6 rounded-2xl bg-surface-1 border border-border-hairline">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <div className="p-5 sm:p-6 rounded-2xl bg-surface-1 border border-border-hairline">
                 <span className="text-[11px] uppercase tracking-wider text-text-muted block">Buyurtmalar</span>
                 <strong className="text-3xl font-serif text-text-main mt-2 block">{orders.length}</strong>
                 <span className="text-xs text-green-500 mt-1 block">Real Supabase bazasidan</span>
               </div>
 
-              <div className="p-6 rounded-2xl bg-surface-1 border border-border-hairline">
+              <div className="p-5 sm:p-6 rounded-2xl bg-surface-1 border border-border-hairline">
                 <span className="text-[11px] uppercase tracking-wider text-text-muted block">Jami Tushum</span>
                 <strong className="text-3xl font-serif text-gold-primary mt-2 block">{formatPrice(totalRevenue)}</strong>
                 <span className="text-xs text-text-muted mt-1 block">Rasmiylashtirilgan xaridlar</span>
               </div>
 
-              <div className="p-6 rounded-2xl bg-surface-1 border border-border-hairline">
+              <div className="p-5 sm:p-6 rounded-2xl bg-surface-1 border border-border-hairline">
                 <span className="text-[11px] uppercase tracking-wider text-text-muted block">Kam qolgan tovarlar</span>
                 <strong className="text-3xl font-serif text-red-400 mt-2 block">{lowStockCount}</strong>
                 <span className="text-xs text-text-muted mt-1 block">Stok kamaygan</span>
               </div>
 
-              <div className="p-6 rounded-2xl bg-surface-1 border border-border-hairline">
+              <div className="p-5 sm:p-6 rounded-2xl bg-surface-1 border border-border-hairline">
                 <span className="text-[11px] uppercase tracking-wider text-text-muted block">Moderatsiya / Sharhlar</span>
                 <strong className="text-3xl font-serif text-text-main mt-2 block">{reviews.length}</strong>
                 <span className="text-xs text-gold-light mt-1 block">{pendingReviewsCount} ta tasdiqlanmagan</span>
@@ -480,7 +480,7 @@ export default function AdminPage() {
             </div>
 
             {/* So'nggi buyurtmalar jadvali */}
-            <div className="bg-surface-1 rounded-2xl border border-border-hairline p-6">
+            <div className="bg-surface-1 rounded-2xl border border-border-hairline p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-serif text-lg text-text-main">So‘nggi buyurtmalar</h3>
                 <button
@@ -496,7 +496,7 @@ export default function AdminPage() {
                 <p className="text-xs text-text-muted py-6 text-center">Hali buyurtmalar mavjud emas.</p>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
+                  <table className="w-full text-left text-xs min-w-[540px]">
                     <thead>
                       <tr className="border-b border-border-hairline text-text-muted uppercase text-[10px] tracking-wider">
                         <th className="py-3 px-2">Raqam</th>
@@ -555,7 +555,7 @@ export default function AdminPage() {
 
             {/* Mahsulotlar jadvali */}
             <div className="bg-surface-1 rounded-2xl border border-border-hairline overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[620px]">
                 <thead>
                   <tr className="border-b border-border-hairline text-text-muted uppercase text-[10px] tracking-wider bg-surface-2/40">
                     <th className="py-3.5 px-4">Nomi</th>
@@ -626,7 +626,7 @@ export default function AdminPage() {
               <p className="text-xs text-text-muted py-8 text-center">Bazada sharhlar mavjud emas.</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[620px]">
                   <thead>
                     <tr className="border-b border-border-hairline text-text-muted uppercase text-[10px] tracking-wider bg-surface-2/40">
                       <th className="py-3.5 px-3">Muallif</th>
@@ -714,7 +714,7 @@ export default function AdminPage() {
               <p className="text-xs text-text-muted py-8 text-center">Buyurtmalar mavjud emas.</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[680px]">
                   <thead>
                     <tr className="border-b border-border-hairline text-text-muted uppercase text-[10px] tracking-wider">
                       <th className="py-3.5 px-3">Raqam</th>
@@ -806,7 +806,7 @@ export default function AdminPage() {
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div onClick={() => setShowAddModal(false)} className="fixed inset-0 bg-black/70 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg bg-surface-1 rounded-2xl border border-border-hairline p-6 sm:p-8 z-10 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-lg bg-surface-1 rounded-2xl border border-border-hairline p-5 sm:p-8 z-10 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 className="font-serif text-xl text-text-main mb-4">Yangi Mahsulot Qo‘shish</h3>
 
             <form onSubmit={handleAddProduct} className="space-y-4">
@@ -817,7 +817,7 @@ export default function AdminPage() {
                   required
                   value={newProductName}
                   onChange={(e) => setNewProductName(e.target.value)}
-                  placeholder="NO. 04 Amber Noir"
+                  placeholder="Mahsulot nomi"
                   className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
                 />
               </div>
@@ -830,6 +830,7 @@ export default function AdminPage() {
                     required
                     value={newProductBrand}
                     onChange={(e) => setNewProductBrand(e.target.value)}
+                    placeholder="Brend"
                     className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
                   />
                 </div>
@@ -840,6 +841,7 @@ export default function AdminPage() {
                     required
                     value={newProductPrice}
                     onChange={(e) => setNewProductPrice(e.target.value)}
+                    placeholder="0"
                     className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
                   />
                 </div>
@@ -871,7 +873,7 @@ export default function AdminPage() {
                     required
                     value={customCategory}
                     onChange={(e) => setCustomCategory(e.target.value)}
-                    placeholder="Masalan: avtomobil-aromatlari"
+                    placeholder="Kategoriya nomi"
                     className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-gold-primary outline-none"
                   />
                 </div>
@@ -897,6 +899,7 @@ export default function AdminPage() {
                     required
                     value={newProductStock}
                     onChange={(e) => setNewProductStock(e.target.value)}
+                    placeholder="10"
                     className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary"
                   />
                 </div>
@@ -908,7 +911,7 @@ export default function AdminPage() {
                   rows={2}
                   value={newProductNotes}
                   onChange={(e) => setNewProductNotes(e.target.value)}
-                  placeholder="Amber, sandal va oq mushk..."
+                  placeholder="Xushbo‘y notalari va qisqacha tavsif..."
                   className="w-full bg-surface-2 text-text-main text-xs px-3.5 py-2.5 rounded-xl border border-border-hairline outline-none focus:border-gold-primary resize-none"
                 />
               </div>

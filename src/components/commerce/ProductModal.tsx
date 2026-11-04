@@ -32,7 +32,7 @@ export const ProductModal: React.FC = () => {
       />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-2xl bg-surface-1 rounded-2xl border border-border-hairline p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="relative w-full max-w-2xl bg-surface-1 rounded-2xl border border-border-hairline p-5 sm:p-8 z-10 max-h-[90vh] overflow-y-auto shadow-2xl">
         <button
           type="button"
           onClick={() => setSelectedProduct(null)}
