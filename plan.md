@@ -113,3 +113,24 @@ Ushbu reja **NOXAR PARFUM** loyihasini **Nutlope/hallmark** anti-AI-slop dizayn 
   - Shriftlar `Playfair Display` va `DM Sans` chegarasida to‘g‘ri ierarxiyada.
   - Mobilda to‘liq moslashuvchan (MobileBottomNav va responsive gridlar).
   - Dark va Light rejimlar mukammal ishlaydi.
+
+---
+
+## 🧹 9-BOSQICH: Hallmark Tozalash, Maxfiylik va Responsivlik Yangilanishi
+
+- [x] **9.1. Hallmark Default Stiker va Gliflarini Tozalash**:
+  - Katalog bo‘limlaridan barcha sun'iy AI-slop glif stikerlari (`✦`, `♢`, `♡`, `◉`, `◌`, `⌂`, `≋`, `◇`, `🎁`) to‘liq olib tashlandi, sof va hashamatli tipografik tugmalar o‘rnatildi.
+  - E'lonlar panelidan (`AnnouncementBar`) `✦` belgisi olib tashlanib, matnlar nozik `·` ajratgich bilan to‘g‘rilandi.
+  - Savat panelidagi xom `✓` belgisi o‘rniga toza Lucide SVG `Check` komponenti joylashtirildi.
+- [x] **9.2. Shaxsiy Ma'lumotlar va Default Labellarni Tozalash**:
+  - Admin panelidagi kirish formasi: `placeholder="Admin email (cazizbek540@gmail.com)"` -> `placeholder="Elektron pochta manzili"`, paroldagi demo ko‘rsatmalar olib tashlandi.
+  - Auth modali: `demo@noxar.com`, `Sardor Alimov`, `+998 90 123 45 67` va boshqa sinov namunalari o‘rniga neytral universal placeholderlar qo‘yildi.
+  - Buyurtma rasmiylashtirish (Checkout) va sharh qoldirish formalaridagi barcha namuna ismlar tozalandi.
+  - Yangi mahsulot qo‘shish formasidagi barcha placeholderlar umumiy professional formatga keltirildi.
+- [x] **9.3. Barcha Ekranlar (320px - 1920px) uchun Moslashuvchanlik**:
+  - `globals.css` da `html` va `body` elementlariga `width: 100%; max-width: 100%; overflow-x: clip;` qat'iy o‘rnatildi.
+  - Admin paneli jadvallari (Dashboard, Mahsulotlar, Sharhlar moderatsiyasi, Buyurtmalar) kichik ekranlarda (320px) sinmasligi uchun gorizontal scroll konteynerlari va minimal kengliklar (`min-w-[540px]`, `min-w-[620px]`, `min-w-[680px]`) bilan jihozlandi.
+  - Dashboard statistika kartalari barcha ekranlar (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`) uchun moslashtirildi.
+  - Barcha modallar (Auth, Checkout, Product, Add Product) 320px ekranlarda chetidan toshib ketmasligi uchun qulay `p-5 sm:p-8` o‘lchamiga keltirildi.
+- [x] **9.4. Yakuniy Statik Build**:
+  - `npm run build` muvaffaqiyatli o‘tib, barcha sahifalar to‘liq statik HTML/JS ko‘rinishida eksport qilindi.
