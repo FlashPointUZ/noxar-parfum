@@ -24,7 +24,7 @@ export const HeroSection: React.FC = () => {
             </div>
           )}
 
-          <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-normal tracking-tight text-text-main leading-[1.02]">
+          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-normal tracking-tight text-text-main leading-[1.05]">
             {hero.title_line1} <br />
             <span className="italic font-normal text-gold-light">{hero.title_highlight}</span> <br />
             {hero.title_line2}
@@ -54,8 +54,8 @@ export const HeroSection: React.FC = () => {
         {/* O'ng tomon: Flakon Kompozitsiyasi yoki Yuklangan Rasm */}
         <div className="lg:col-span-5 flex justify-center items-center relative py-8">
           {/* Halqalar */}
-          <div className="absolute w-[340px] sm:w-[420px] h-[340px] sm:h-[420px] rounded-full border border-gold-primary/20 pointer-events-none" />
-          <div className="absolute w-[240px] sm:w-[300px] h-[240px] sm:h-[300px] rounded-full border border-border-hairline pointer-events-none" />
+          <div className="absolute w-[280px] sm:w-[420px] h-[280px] sm:h-[420px] rounded-full border border-gold-primary/20 pointer-events-none" />
+          <div className="absolute w-[200px] sm:w-[300px] h-[200px] sm:h-[300px] rounded-full border border-border-hairline pointer-events-none" />
 
           {hero.image_url ? (
             <div className="relative z-10 max-w-sm rounded-2xl overflow-hidden shadow-2xl border border-border-hairline group">

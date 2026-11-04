@@ -27,17 +27,17 @@ export const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-surface-0/90 backdrop-blur-md border-b border-border-hairline transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
         {/* Brand Logo */}
-        <a href="#home" className="flex items-center gap-3 group">
-          <div className="w-9 h-10 border border-gold-primary/70 flex items-center justify-center font-serif text-xl text-gold-primary font-bold transition-transform group-hover:scale-105">
+        <a href="#home" className="flex items-center gap-2.5 sm:gap-3 group">
+          <div className="w-8 h-9 sm:w-9 sm:h-10 border border-gold-primary/70 flex items-center justify-center font-serif text-lg sm:text-xl text-gold-primary font-bold transition-transform group-hover:scale-105">
             N
           </div>
           <div className="flex flex-col">
-            <span className="font-serif text-lg tracking-[0.2em] font-semibold text-text-main leading-none">
+            <span className="font-serif text-base sm:text-lg tracking-[0.2em] font-semibold text-text-main leading-none">
               NOXAR
             </span>
-            <span className="text-[8px] tracking-[0.35em] text-gold-primary uppercase font-sans mt-0.5">
+            <span className="text-[7px] sm:text-[8px] tracking-[0.35em] text-gold-primary uppercase font-sans mt-0.5">
               PARFUM
             </span>
           </div>
@@ -60,8 +60,8 @@ export const Header: React.FC = () => {
         </nav>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 sm:gap-3.5">
-          {/* Manzil */}
+        <div className="flex items-center gap-1.5 sm:gap-3">
+          {/* Manzil (Desktop/Planshet) */}
           <button
             type="button"
             onClick={openLocation}
@@ -93,11 +93,11 @@ export const Header: React.FC = () => {
             <Search className="w-4 h-4" />
           </button>
 
-          {/* Sevimlilar */}
+          {/* Sevimlilar (Desktop only — mobile uchun pastki navigatsiya bor) */}
           <button
             type="button"
             onClick={() => setWishlistOpen(true)}
-            className="relative p-2 rounded-full text-text-muted hover:text-gold-primary hover:bg-surface-2 transition-all"
+            className="hidden md:flex relative p-2 rounded-full text-text-muted hover:text-gold-primary hover:bg-surface-2 transition-all"
             aria-label="Sevimlilar ro‘yxati"
           >
             <Heart className="w-4 h-4" />
@@ -108,11 +108,11 @@ export const Header: React.FC = () => {
             )}
           </button>
 
-          {/* User Auth / Kabinet */}
+          {/* User Auth / Kabinet (Desktop only — mobile uchun pastki navigatsiya bor) */}
           <button
             type="button"
             onClick={() => setAuthOpen(true)}
-            className={`p-2 rounded-full border transition-all ${
+            className={`hidden md:flex p-2 rounded-full border transition-all ${
               user
                 ? 'border-gold-primary bg-gold-primary/10 text-gold-primary'
                 : 'border-border-hairline text-text-muted hover:text-gold-primary hover:bg-surface-2'
@@ -123,11 +123,11 @@ export const Header: React.FC = () => {
             <User className="w-4 h-4" />
           </button>
 
-          {/* Savat */}
+          {/* Savat (Desktop only — mobile uchun pastki navigatsiya bor) */}
           <button
             type="button"
             onClick={() => setCartOpen(true)}
-            className="relative flex items-center gap-2 px-3.5 py-2 rounded-full border border-gold-primary/40 bg-gold-primary/5 hover:bg-gold-primary/10 text-gold-primary text-xs uppercase tracking-wider transition-all font-medium"
+            className="hidden md:flex relative items-center gap-2 px-3.5 py-2 rounded-full border border-gold-primary/40 bg-gold-primary/5 hover:bg-gold-primary/10 text-gold-primary text-xs uppercase tracking-wider transition-all font-medium"
             aria-label="Savat"
           >
             <ShoppingBag className="w-4 h-4" />

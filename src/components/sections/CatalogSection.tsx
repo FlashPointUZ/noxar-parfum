@@ -136,11 +136,11 @@ export const CatalogSection: React.FC = () => {
         </div>
 
         {/* Filtrlar va Saralash Paneli */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-surface-1 p-4 rounded-xl border border-border-hairline">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-8 bg-surface-1 p-3 sm:p-4 rounded-xl border border-border-hairline">
           {/* Jins Filtr */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-text-muted uppercase tracking-wider hidden sm:inline">Jins:</span>
-            <div className="flex gap-1.5">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <span className="text-xs text-text-muted uppercase tracking-wider hidden md:inline">Jins:</span>
+            <div className="grid grid-cols-4 sm:flex gap-1 sm:gap-1.5 w-full sm:w-auto">
               {[
                 { id: 'all', label: 'Barchasi' },
                 { id: 'ayollar', label: 'Ayollar' },
@@ -151,10 +151,10 @@ export const CatalogSection: React.FC = () => {
                   key={g.id}
                   type="button"
                   onClick={() => setSelectedGender(g.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs tracking-wider transition-all ${
+                  className={`px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs text-center font-medium tracking-wide transition-all ${
                     selectedGender === g.id
-                      ? 'bg-surface-2 text-gold-primary font-semibold border border-gold-primary/40'
-                      : 'text-text-muted hover:text-text-main'
+                      ? 'bg-surface-2 text-gold-primary font-semibold border border-gold-primary/40 shadow-sm'
+                      : 'text-text-muted hover:text-text-main hover:bg-surface-2/50'
                   }`}
                 >
                   {g.label}
@@ -164,12 +164,15 @@ export const CatalogSection: React.FC = () => {
           </div>
 
           {/* Saralash Dropdown */}
-          <div className="flex items-center gap-2 ml-auto">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-text-muted" />
+          <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto pt-2.5 sm:pt-0 border-t sm:border-t-0 border-border-hairline/60">
+            <div className="flex items-center gap-1.5 text-text-muted text-xs">
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span className="sm:hidden text-text-muted uppercase tracking-wider text-[10px]">Saralash:</span>
+            </div>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-surface-2 text-text-main text-xs px-3 py-1.5 rounded-lg border border-border-hairline outline-none focus:border-gold-primary transition-all cursor-pointer"
+              className="bg-surface-2 text-text-main text-xs px-3 py-1.5 rounded-lg border border-border-hairline outline-none focus:border-gold-primary transition-all cursor-pointer flex-1 sm:flex-initial"
             >
               <option value="default">Tavsiya etilgan</option>
               <option value="priceAsc">Narx: arzonidan</option>
