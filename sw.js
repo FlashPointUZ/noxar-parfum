@@ -1,5 +1,5 @@
-const CACHE_NAME = 'noxar-parfum-v3';
-const APP_SHELL = ['./', './index.html', './product.html', './style.css', './product-detail.css', './script.js', './product-detail.js', './supabase-config.js', './manifest.webmanifest'];
+const CACHE_NAME = 'noxar-parfum-v2';
+const APP_SHELL = ['./', './index.html', './style.css', './script.js', './supabase-config.js', './manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
@@ -16,7 +16,6 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  if (new URL(event.request.url).pathname.includes('admin')) return; /* admin panel keshlanmaydi */
   event.respondWith(
     fetch(event.request).then((response) => {
       if (response.ok && response.type === 'basic') {

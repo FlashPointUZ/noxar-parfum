@@ -19,18 +19,3 @@
 @media(max-width:1000px){.detail-main{grid-template-columns:minmax(0,1fr) minmax(300px,.8fr)}.detail-aside{grid-column:1/-1;grid-template-columns:1fr 1fr}.detail-lower{margin-right:0}}
 @media(max-width:760px){.product-detail-shell{padding:15px 14px 40px}.product-page .site-header{height:64px}.detail-main{display:block}.detail-visual{height:390px}.detail-content h1{font-size:34px}.detail-aside{display:grid;grid-template-columns:1fr 1fr;margin-top:16px}.detail-lower{margin:20px 0 0}.detail-tabs{gap:18px}.detail-lower .detail-notes{display:none}}
 @media(max-width:760px){.product-back-button{padding:9px 12px;font-size:10px}.product-back-button:first-letter{font-size:15px}}
-
-/* ===== NOXAR: mahsulot sahifasi qo'shimchalari ===== */
-.detail-stock.is-out,.availability b.is-out{color:#d98a7a}
-.detail-stock.is-low,.availability b.is-low{color:#e4c27a}
-.detail-video{display:block;width:100%;margin-top:14px;max-height:420px;background:#000}
-.detail-old-price{color:#8f877a;font-size:.6em;font-weight:400;margin-right:6px}
-.detail-discount{color:#e4c27a;font-size:.55em;letter-spacing:1px;margin-left:6px}
-.detail-soldout-note{color:#d98a7a;font-size:13px;margin:12px 0 0}
-.detail-reservation:disabled{opacity:.45;cursor:not-allowed}
-.detail-visual img{max-width:100%;max-height:100%;object-fit:contain}
-.review-message{display:block;margin-top:10px}
-.review-message.review-error,.reservation-error{color:#e08f80}
-.review-message.review-success{color:#9fcf9f}
-.reservation-error{display:block;margin-top:10px;line-height:1.5}
-.detail-retry{margin-right:10px}

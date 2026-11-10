@@ -422,33 +422,3 @@ footer{padding:24px 5vw 18px!important}footer .footer-top{padding-bottom:18px!im
   .category-select-menu{top:calc(100% + 5px);padding:4px;border-radius:12px}
   .category-select-menu button{padding:8px 10px;border-radius:8px;font-size:11px}
 }
-
-/* ===== NOXAR: yangi bloklar (mavjud dizayn ranglari asosida) ===== */
-.card-link{color:inherit;text-decoration:none}
-.card-link:hover{color:var(--gold-light)}
-.product-card,.catalog-card,.popular-item,.recent-card{cursor:pointer}
-.product-card:focus-visible,.catalog-card:focus-visible,.popular-item:focus-visible,.recent-card:focus-visible{outline:1px solid var(--gold);outline-offset:3px}
-.card-more{display:inline-block;margin-top:12px;color:var(--gold-light);font-size:10px;letter-spacing:1.2px;text-transform:uppercase}
-.catalog-card:hover .card-more{color:var(--gold)}
-.catalog-card.is-soldout .catalog-art{filter:saturate(.55)}
-.grid-status{grid-column:1/-1;color:var(--muted);font-size:13px;padding:18px 0}
-.product-image.has-photo .product-media-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.product-image.has-photo .badge,.product-image.has-photo .art-number{position:relative;z-index:2}
-.wishlist-art,.recent-art{overflow:hidden}
-.wishlist-art img,.recent-art img{width:100%;height:100%;object-fit:cover;display:block}
-.catalog-retry{background:none;border:0;border-bottom:1px solid #b4935a66;cursor:pointer;margin-left:8px;font-family:inherit}
-.forgot-password{background:none;border:0;border-bottom:1px solid #b4935a66;cursor:pointer;margin-top:14px;align-self:flex-start;font-family:inherit}
-.account-form .forgot-password{display:inline-block;width:max-content}
-
-.info-section{border-top:1px solid var(--line)}
-.info-lead{max-width:720px;color:#cfc8bb;font-size:17px;line-height:1.8;margin:0 0 38px}
-.info-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.info-card{border:1px solid var(--line);padding:26px 24px;background:rgba(255,255,255,.02)}
-.info-card span{display:block;color:var(--gold);font-size:20px;margin-bottom:16px}
-.info-card h3{font:500 20px var(--serif);margin:0 0 8px;color:var(--cream)}
-.info-card p{margin:0;color:var(--muted);font-size:13px}
-.contact-box{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap;border:1px solid var(--line);padding:34px 32px;background:rgba(255,255,255,.02)}
-.contact-address{margin:0;font:500 24px/1.5 var(--serif);color:var(--cream)}
-.contact-actions{display:flex;gap:14px;flex-wrap:wrap}
-.contact-telegram{background:transparent;border:1px solid rgba(198,160,91,.6);color:var(--gold-light)}
-@media(max-width:800px){.info-cards{grid-template-columns:1fr}.contact-box{padding:26px 20px}.contact-address{font-size:21px}.contact-actions .button{width:100%;justify-content:space-between}}
