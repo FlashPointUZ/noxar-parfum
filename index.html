@@ -6,6 +6,10 @@
   <meta name="description" content="NOXAR PARFUM — tanlangan premium hidlar olami.">
   <meta name="theme-color" content="#11100f">
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%2311100f%27/%3E%3Ctext x=%2732%27 y=%2745%27 font-size=%2742%27 text-anchor=%27middle%27 fill=%27%23e4c27a%27 font-family=%27Georgia,serif%27%3EN%3C/text%3E%3C/svg%3E">
+  <meta property="og:title" content="NOXAR PARFUM — Sening izing">
+  <meta property="og:description" content="NOXAR PARFUM — tanlangan premium hidlar olami.">
+  <meta property="og:type" content="website">
   <title>NOXAR PARFUM — Sening izing</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,20 +17,18 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="announcement">Bepul yetkazib berish — 500 000 so'mdan yuqori buyurtmalarga <span>✦</span></div>
+  <div class="announcement">Atirlarni do'konimizda hidlab ko'ring — Bekbaraka bozori <span>✦</span></div>
 
   <header class="site-header">
     <a class="brand" href="#home" aria-label="NOXAR bosh sahifasi"><span class="brand-mark">N</span><span class="brand-name">NOXAR</span><em>PARFUM</em></a>
     <nav class="desktop-nav" aria-label="Asosiy navigatsiya">
       <a href="#new">Yangi kolleksiya</a>
-      <a href="#collections">Kolleksiyalar</a>
+      <a href="#catalog">Kolleksiyalar</a>
       <a href="#about">Biz haqimizda</a>
       <a href="#contact">Aloqa</a>
     </nav>
     <div class="header-actions">
       <button class="mobile-location" type="button" aria-label="Do‘kon manzilini olish"><span class="location-pin" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 21s7-6.1 7-12A7 7 0 0 0 5 9c0 5.9 7 12 7 12Z"></path><circle cx="12" cy="9" r="2.4"></circle></svg></span><strong>Manzil</strong><span class="location-chevron" aria-hidden="true">↗</span></button>
-      <button class="mobile-preview-button" type="button" aria-label="Mobil ko‘rinishni ochish"><span class="preview-icon" aria-hidden="true">▯</span><span>Mobil</span></button>
-      <button class="desktop-preview-button" type="button" aria-label="Desktop ko‘rinishni ochish"><span class="preview-icon" aria-hidden="true">▣</span><span>Desktop</span></button>
       <button class="icon-button search-toggle" aria-label="Qidiruvni ochish"><span class="icon">⌕</span></button>
       <button class="wishlist-button" aria-label="Sevimlilarni ochish">♡ <b class="wishlist-count">0</b></button>
       <button class="account-button" aria-label="Kabinetni ochish">Kabinet</button>
@@ -40,9 +42,8 @@
     <div class="search-results" aria-live="polite"></div>
   </div>
   <nav class="mobile-nav">
-    <a href="#new">Yangi kolleksiya</a><a href="#collections">Kolleksiyalar</a><a href="#about">Biz haqimizda</a><a href="#contact">Aloqa</a>
+    <a href="#new">Yangi kolleksiya</a><a href="#catalog">Kolleksiyalar</a><a href="#about">Biz haqimizda</a><a href="#contact">Aloqa</a>
   </nav>
-  <section class="market-route" id="market-route" hidden aria-live="polite"></section>
 
   <main id="home">
     <section class="hero">
@@ -63,32 +64,13 @@
     </section>
 
     <section class="new-collection section" id="new">
-      <div class="section-heading reveal"><div><p class="eyebrow">Tanlangan</p><h2>Yangi <i>kolleksiya</i></h2></div><a class="text-link" href="#collections">Barchasini ko'rish <span>↗</span></a></div>
-      <div class="product-grid">
-        <article class="product-card reveal" data-name="No. 01 Obsidian" data-category="universal">
-          <div class="product-image black-art"><span class="badge">Yangi</span><div class="mini-bottle"><b>N</b></div><span class="art-number">01</span></div>
-          <div class="product-info"><div><h3>NO. 01 Obsidian</h3><p>Qora qalampir · Vetiver · Amber</p></div><strong>890 000 so'm</strong></div>
-          <button class="product-view" data-product="No. 01 Obsidian">Batafsil ko‘rish <span>↗</span></button>
-        </article>
-        <article class="product-card reveal" data-name="No. 02 Santal" data-category="universal">
-          <div class="product-image cream-art"><span class="badge">Bestseller</span><div class="mini-bottle light"><b>N</b></div><span class="art-number">02</span></div>
-          <div class="product-info"><div><h3>NO. 02 Santal</h3><p>Sandal · Iris · Oq mushk</p></div><strong>950 000 so'm</strong></div>
-          <button class="product-view" data-product="No. 02 Santal">Batafsil ko‘rish <span>↗</span></button>
-        </article>
-        <article class="product-card reveal" data-name="No. 03 Éclat" data-category="ayollar">
-          <div class="product-image rose-art"><span class="badge">Yangi</span><div class="mini-bottle rose"><b>N</b></div><span class="art-number">03</span></div>
-          <div class="product-info"><div><h3>NO. 03 Éclat</h3><p>Atirgul · Lychee · Vanil</p></div><strong>820 000 so'm</strong></div>
-          <button class="product-view" data-product="No. 03 Éclat">Batafsil ko‘rish <span>↗</span></button>
-        </article>
-      </div>
+      <div class="section-heading reveal"><div><p class="eyebrow">Tanlangan</p><h2>Yangi <i>kolleksiya</i></h2></div><a class="text-link" href="#catalog">Barchasini ko'rish <span>↗</span></a></div>
+      <div class="product-grid" aria-live="polite"><p class="grid-status">Yuklanmoqda…</p></div>
     </section>
 
     <section class="popular section">
-      <div class="section-heading reveal"><div><p class="eyebrow">NOXAR tanlovi</p><h2>Mashhur <i>hidlar</i></h2></div><a class="text-link" href="#new">Katalogni ko'rish <span>↗</span></a></div>
-      <div class="popular-grid">
-        <article class="popular-item reveal"><span class="popular-index">01</span><div class="popular-bottle dark"></div><div><p class="popular-type">Eau de Parfum · Uniseks</p><h3>NO. 01 Obsidian</h3><p class="popular-notes">Qora qalampir, vetiver, tutunli amber</p><strong>890 000 so'm</strong></div><a class="round-link small" href="#new" aria-label="Obsidianni ko'rish">↗</a></article>
-        <article class="popular-item reveal"><span class="popular-index">02</span><div class="popular-bottle sand"></div><div><p class="popular-type">Eau de Parfum · Uniseks</p><h3>NO. 02 Santal</h3><p class="popular-notes">Sandal, iris, oq mushk</p><strong>950 000 so'm</strong></div><a class="round-link small" href="#new" aria-label="Santalni ko'rish">↗</a></article>
-      </div>
+      <div class="section-heading reveal"><div><p class="eyebrow">NOXAR tanlovi</p><h2>Mashhur <i>hidlar</i></h2></div><a class="text-link" href="#catalog">Katalogni ko'rish <span>↗</span></a></div>
+      <div class="popular-grid" aria-live="polite"></div>
     </section>
 
     <section class="catalog section" id="catalog">
@@ -132,120 +114,36 @@
       <div class="section-heading"><div><p class="eyebrow">Siz uchun</p><h2>Yaqinda <i>ko‘rilganlar</i></h2></div><button class="text-link clear-recent" type="button">Tozalash</button></div>
       <div class="recent-grid"></div>
     </section>
-  </main>
-
-  <div class="product-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal-backdrop" data-close-modal></div>
-    <div class="modal-card">
-      <button class="modal-close" type="button" aria-label="Oynani yopish" data-close-modal>×</button>
-      <div class="modal-gallery">
-        <div class="modal-art product-image black-art"><div class="mini-bottle"><b>N</b></div><span class="view-label">Ko‘rinish 1</span></div>
-        <div class="gallery-dots" aria-label="Mahsulot ko‘rinishlari"><button class="active" type="button" data-view="0" aria-label="Birinchi ko‘rinish"></button><button type="button" data-view="1" aria-label="Ikkinchi ko‘rinish"></button><button type="button" data-view="2" aria-label="Uchinchi ko‘rinish"></button></div>
+    <section class="info-section section" id="about">
+      <div class="section-heading reveal"><div><p class="eyebrow">NOXAR</p><h2>Biz <i>haqimizda</i></h2></div></div>
+      <p class="info-lead reveal">NOXAR PARFUM — tanlangan premium hidlar olami. Har bir hid xotira va xarakter: mahsulotni do‘konimizda hidlab ko‘ring, sotuvchilarimiz maslahati bilan o‘zingizga mosini tanlang.</p>
+      <div class="info-cards">
+        <article class="info-card reveal"><span aria-hidden="true">✦</span><h3>Original mahsulot</h3><p>100% kafolat</p></article>
+        <article class="info-card reveal"><span aria-hidden="true">♧</span><h3>Professional maslahat</h3><p>Sotuvchilarimiz yordam beradi</p></article>
+        <article class="info-card reveal"><span aria-hidden="true">↻</span><h3>14 kunlik qaytarish</h3><p>Shartlar asosida</p></article>
       </div>
-      <div class="modal-content">
-        <p class="catalog-brand" id="modal-brand"></p><h2 id="modal-title"></h2><div class="modal-rating" id="modal-rating"></div><p class="modal-price" id="modal-price"></p><p class="modal-description" id="modal-description"></p>
-        <div class="product-info-tabs"><button class="active" type="button" data-info-tab="details">Tavsif</button><button type="button" data-info-tab="usage">Foydalanish</button><button type="button" data-info-tab="features">Xususiyatlar</button></div>
-        <div class="product-info-panel active" data-info-panel="details"></div>
-        <div class="product-info-panel" data-info-panel="usage"></div>
-        <div class="product-info-panel" data-info-panel="features"></div>
-        <div class="modal-notes"><div><span>Yuqori nota</span><b id="modal-top"></b></div><div><span>Yurak nota</span><b id="modal-heart"></b></div><div><span>Baza nota</span><b id="modal-base"></b></div></div>
-        <label class="volume-label">Hajm tanlang<div class="volume-options"><button type="button" class="active">30 ml</button><button type="button">50 ml</button><button type="button">100 ml</button></div></label>
-        <div class="modal-actions"><button class="modal-favorite" type="button" aria-label="Sevimliga qo‘shish">♡</button></div>
-        <div class="service-info"><span>✦ Mahsulotni do‘konimizda ko‘rib tanlang<small>Real xarid faqat magazinda</small></span><span>↻ 14 kun ichida qaytarish <small>Shartlar asosida</small></span></div>
-        <details><summary>Tarkibi va batafsil tavsif</summary><p>Alcohol Denat., Parfum, Aqua, tanlangan tabiiy ekstraktlar va xushbo‘y kompozitsiya. Hayvonlarda sinovdan o‘tkazilmagan.</p></details>
-        <section class="product-reviews" aria-labelledby="reviews-title">
-          <div class="reviews-heading"><div><p class="eyebrow">Mijozlar fikri</p><h3 id="reviews-title">Sharhlar</h3></div><strong class="reviews-average">0.0 ★</strong></div>
-          <div class="reviews-list"></div>
-          <form class="review-form">
-            <label>Ismingiz<input name="reviewer" type="text" placeholder="Ismingiz" required></label>
-            <label>Bahongiz<div class="review-stars" role="radiogroup" aria-label="Mahsulot bahosi"><button type="button" data-rating="1" aria-label="1 yulduz">★</button><button type="button" data-rating="2" aria-label="2 yulduz">★</button><button type="button" data-rating="3" aria-label="3 yulduz">★</button><button type="button" data-rating="4" aria-label="4 yulduz">★</button><button type="button" data-rating="5" aria-label="5 yulduz">★</button></div></label>
-            <label>Sharhingiz<textarea name="reviewText" rows="3" placeholder="Tajribaingizni yozing..." required></textarea></label>
-            <button class="button button-gold review-submit" type="submit">Sharh yuborish <span>↗</span></button>
-          </form>
-        </section>
-        <div class="similar-products"><p class="eyebrow">Sizga yoqishi mumkin</p><div id="similar-list"></div></div>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <aside class="cart-drawer" aria-hidden="true" aria-labelledby="cart-title">
-    <div class="cart-drawer-backdrop" data-close-cart></div>
-    <div class="cart-panel">
-      <div class="cart-panel-head"><div><p class="eyebrow">Sizning tanlovingiz</p><h2 id="cart-title">Savat</h2></div><button class="cart-close" type="button" aria-label="Savatni yopish" data-close-cart>×</button></div>
-      <div class="cart-items"></div>
-      <div class="cart-summary">
-        <form class="promo-form">
-          <label for="promo-code">Promo-kod</label>
-          <div class="promo-row"><input id="promo-code" name="promoCode" placeholder="NOXAR10" autocomplete="off"><button type="submit">Qo‘llash</button></div>
-          <p class="promo-status" aria-live="polite"></p>
-        </form>
-        <div><span>Mahsulotlar</span><strong class="cart-subtotal">0 so‘m</strong></div>
-        <div class="discount-row hidden"><span>Chegirma</span><strong class="cart-discount">−0 so‘m</strong></div>
-        <div><span>Yetkazib berish</span><strong class="cart-shipping">0 so‘m</strong></div>
-        <div class="cart-total"><span>Jami</span><strong class="cart-grand-total">0 so‘m</strong></div>
-        <button class="button button-gold checkout-demo" type="button">Buyurtma berish <span>↗</span></button>
-      </div>
-    </div>
-  </aside>
-
-  <aside class="checkout-modal" aria-hidden="true" aria-labelledby="checkout-title">
-    <div class="checkout-backdrop" data-close-checkout></div>
-    <div class="checkout-panel">
-      <div class="cart-panel-head"><div><p class="eyebrow">Demo checkout</p><h2 id="checkout-title">Buyurtma berish</h2></div><button class="cart-close" type="button" aria-label="Checkoutni yopish" data-close-checkout>×</button></div>
-      <div class="checkout-layout">
-        <form class="checkout-form" novalidate>
-          <div class="field-grid">
-            <label>Ism va familiya<input type="text" name="fullName" placeholder="Nomi" required></label>
-            <label>Telefon<input type="tel" name="phone" placeholder="+998 90 123 45 67" required></label>
-          </div>
-          <label>Manzil<textarea name="address" rows="3" placeholder="Shahar, ko‘cha, uy raqami" required></textarea></label>
-          <div class="field-grid">
-            <label>Yetkazib berish usuli<select name="shippingMethod"><option value="standart">Standart yetkazib berish — 1-2 kun</option><option value="express">Express — 6 soat ichida</option><option value="pickup">Olib ketish</option></select></label>
-            <label>To‘lov usuli<select name="paymentMethod"><option value="cash">Naqd pul</option><option value="card">Karta</option><option value="payme">Payme / Click</option></select></label>
-          </div>
-          <button class="button button-gold checkout-submit" type="submit">Buyurtmani tasdiqlash <span>↗</span></button>
-        </form>
-        <div class="checkout-summary-box">
-          <h3>Buyurtma</h3>
-          <div class="checkout-items"></div>
-          <div class="checkout-total-row"><span>Mahsulotlar</span><strong class="checkout-subtotal">0 so‘m</strong></div>
-          <div class="checkout-total-row checkout-discount hidden"><span>Chegirma</span><strong class="checkout-discount-value">−0 so‘m</strong></div>
-          <div class="checkout-total-row"><span>Yetkazib berish</span><strong class="checkout-shipping">0 so‘m</strong></div>
-          <div class="checkout-total-row grand"><span>Jami</span><strong class="checkout-grand-total">0 so‘m</strong></div>
+    <section class="info-section section" id="contact">
+      <div class="section-heading reveal"><div><p class="eyebrow">Bog‘lanish</p><h2>Bizni <i>toping</i></h2></div></div>
+      <div class="contact-box reveal">
+        <div>
+          <p class="eyebrow">Do‘kon manzili</p>
+          <p class="contact-address">Bekbaraka bozori<br>12-qator, 2-blok<br>472-magazin yonida</p>
+        </div>
+        <div class="contact-actions">
+          <a class="button button-gold contact-map" href="https://www.google.com/maps/search/?api=1&query=Bekbaraka+bozori+12-qator+2-blok+472-magazin" target="_blank" rel="noopener">Xaritada ko‘rish <span>↗</span></a>
+          <a class="button contact-telegram" href="https://t.me/ITishnikN1" target="_blank" rel="noopener">Telegramda yozish <span>↗</span></a>
         </div>
       </div>
-      <div class="checkout-confirmation hidden" aria-live="polite">
-        <div class="success-mark">✓</div>
-        <h3>Buyurtma qabul qilindi!</h3>
-        <p>Buyurtma raqami: <strong class="order-number">NOX-000000</strong></p>
-        <p>Buyurtmangizni kuzatish uchun demo sahifaga o‘ting.</p>
-        <button class="button button-gold view-tracking" type="button">Buyurtmani ko‘rish <span>↗</span></button>
-      </div>
-    </div>
-  </aside>
+    </section>
+  </main>
 
   <aside class="wishlist-drawer" aria-hidden="true" aria-labelledby="wishlist-title">
     <div class="wishlist-drawer-backdrop" data-close-wishlist></div>
     <div class="wishlist-panel">
       <div class="cart-panel-head"><div><p class="eyebrow">Saqlangan tanlovlar</p><h2 id="wishlist-title">Sevimlilar</h2></div><button class="cart-close" type="button" aria-label="Sevimlilarni yopish" data-close-wishlist>×</button></div>
       <div class="wishlist-items"></div>
-    </div>
-  </aside>
-
-  <aside class="track-modal" aria-hidden="true" aria-labelledby="track-title">
-    <div class="track-backdrop" data-close-track></div>
-    <div class="track-panel">
-      <div class="cart-panel-head"><div><p class="eyebrow">Demo kuzatuv</p><h2 id="track-title">Buyurtmani kuzatish</h2></div><button class="cart-close" type="button" aria-label="Kuzatuvni yopish" data-close-track>×</button></div>
-      <form class="track-form">
-        <label>Buyurtma raqami<input type="text" name="orderNumber" placeholder="NOX-123456" required></label>
-        <button class="button button-gold track-submit" type="submit">Kuzatishni ko‘rsat <span>↗</span></button>
-      </form>
-      <div class="track-result hidden">
-        <div class="status-pill">Status</div>
-        <h3 class="track-order-number">NOX-000000</h3>
-        <p class="track-order-status">Qabul qilindi</p>
-        <div class="track-meta"><span>Mahsulotlar: <strong class="track-items-count">0</strong></span><span>Umumiy summa: <strong class="track-total">0 so‘m</strong></span></div>
-      </div>
     </div>
   </aside>
 
@@ -260,9 +158,10 @@
       <div class="account-body">
         <div class="account-auth active" data-auth-panel="login">
           <form class="account-form" data-form="login">
-            <label>Email<input type="email" name="email" placeholder="demo@noxar.com" required></label>
+            <label>Email<input type="email" name="email" placeholder="name@example.com" required></label>
             <label>Parol<input type="password" name="password" placeholder="••••••••" required></label>
             <button class="button button-gold" type="submit">Kirish <span>↗</span></button>
+            <button class="text-link forgot-password" type="button">Parolni unutdingizmi?</button>
           </form>
         </div>
         <div class="account-auth" data-auth-panel="register">
@@ -277,18 +176,13 @@
           <div class="profile-card">
             <div class="profile-avatar">N</div>
             <div>
-              <p class="eyebrow">Mijoz</p>
-              <h3 id="account-user-name">Demo foydalanuvchi</h3>
-              <p id="account-user-email">demo@noxar.com</p>
+              <p class="eyebrow">NOXAR mijozi</p>
+              <h3 id="account-user-name"></h3>
+              <p id="account-user-email"></p>
             </div>
           </div>
-          <div class="settings-card">
-            <h3>Sozlamalar</h3>
-            <div class="settings-row"><span>Rahmat xabarlari</span><button type="button" class="toggle-setting active">Yoniq</button></div>
-            <div class="settings-row"><span>Maxsus takliflar</span><button type="button" class="toggle-setting active">Yoniq</button></div>
-          </div>
           <div class="history-card">
-            <h3>Buyurtmalar tarixi</h3>
+            <h3>Mening so‘rovlarim</h3>
             <div class="account-orders"></div>
           </div>
           <button class="button button-gold logout-button" type="button">Chiqish <span>↗</span></button>
@@ -297,7 +191,7 @@
     </div>
   </aside>
 
-  <footer><div class="footer-top"><a class="brand" href="#home"><span class="brand-mark">N</span><span class="brand-name">NOXAR</span><em>PARFUM</em></a><p>Sening izing. Sening hikoyang.</p><div class="socials"><a href="#" aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a><a href="#" aria-label="Telegram" title="Telegram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.5 18.7 20c-.2 1.1-.8 1.4-1.7.9l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.8.4l.3-4.7L18 8.2c.4-.4-.1-.6-.7-.2l-9.8 6.1-4.2-1.3c-.9-.3-.9-.9.2-1.3L20.2 2.9c.8-.3 1.5.2 1.3.6Z" fill="currentColor" stroke="none"/></svg></a><a href="#" aria-label="Facebook" title="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8.5V7c0-.7.5-1 1-1h2V2.4h-2.6C11.2 2.4 10 4.2 10 6.7v1.8H7v4h3V22h4v-9.5h3l.5-4H14Z" fill="currentColor" stroke="none"/></svg></a></div></div><form class="newsletter-form" novalidate><div><p class="eyebrow">NOXAR xabarlari</p><h3>Yangi kolleksiya va aksiyalarni birinchi bo‘lib biling.</h3></div><div class="newsletter-input"><input type="email" placeholder="Email manzilingiz" aria-label="Newsletter email" required><button type="submit">Obuna bo‘lish <span>↗</span></button></div><p class="newsletter-status" aria-live="polite"></p></form><div class="footer-bottom"><span>© 2024 NOXAR PARFUM</span><span>Sevgi bilan Toshkentda yaratilgan</span></div></footer>
+  <footer><div class="footer-top"><a class="brand" href="#home"><span class="brand-mark">N</span><span class="brand-name">NOXAR</span><em>PARFUM</em></a><p>Sening izing. Sening hikoyang.</p><div class="socials"><a href="https://t.me/ITishnikN1" target="_blank" rel="noopener" aria-label="Telegram" title="Telegram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.5 18.7 20c-.2 1.1-.8 1.4-1.7.9l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.8.4l.3-4.7L18 8.2c.4-.4-.1-.6-.7-.2l-9.8 6.1-4.2-1.3c-.9-.3-.9-.9.2-1.3L20.2 2.9c.8-.3 1.5.2 1.3.6Z" fill="currentColor" stroke="none"/></svg></a></div></div><form class="newsletter-form" novalidate><div><p class="eyebrow">NOXAR xabarlari</p><h3>Yangi kolleksiya va aksiyalarni birinchi bo‘lib biling.</h3></div><div class="newsletter-input"><input type="email" placeholder="Email manzilingiz" aria-label="Newsletter email" required><button type="submit">Obuna bo‘lish <span>↗</span></button></div><p class="newsletter-status" aria-live="polite"></p></form><div class="footer-bottom"><span>© <span class="current-year">2026</span> NOXAR PARFUM</span><span>Sevgi bilan Toshkentda yaratilgan</span></div></footer>
   <nav class="mobile-bottom-nav" aria-label="Mobil navigatsiya"><button class="active" data-mobile-nav="home">⌂<span>Bosh sahifa</span></button><button data-mobile-nav="search" class="mobile-search-nav">⌕<span>Qidirish</span></button><button data-mobile-nav="account">◎<span>Profil</span></button></nav>
   <button class="back-to-top" type="button" aria-label="Tepaga qaytish">↑</button>
   <div class="toast" role="status"></div>
